@@ -13,19 +13,19 @@ description: "A long-form essay arguing that the mainstreaming of country music 
 
 ## I. The Hook
 
-In the early 1990s, something remarkable happened to American popular music. A species long confined to the rural South and the occasional roadside honky-tonk began to migrate — slowly at first, then with alarming speed — into the mainstream of national culture. Within a decade, it had colonized radio stations, stadium tours, truck commercials, and eventually the American political identity itself. Scientists are still studying how this happened. This essay is one attempt to explain it to the rest of us.
+Something shifted in American music around 1991. Most people didn't notice. The ones who did mostly shrugged. That's how these things work — the really important changes never announce themselves.
 
-I grew up in South Carolina. We made fun of people who listened to country music — not cruelly, just honestly. Country was a signal. Like a bird's plumage, it told you what you were dealing with before the creature opened its mouth. We understood, even as children, that there was something being communicated by the gun rack, the hat, the particular set of the jaw that said *I don't have a lot of patience for questions.* We weren't wrong. We were, however, unprepared for what came next.
+I grew up in South Carolina. We made fun of people who listened to country music. Not viciously — just honestly. Country was a marker. It told you something about the person before they opened their mouth: older, rural, the guy with the gun rack who'd already decided the conversation was over before it started. We weren't being entirely fair. We also weren't entirely wrong.
 
-It is important, before we proceed, to acknowledge that the old country music was different. Hank Williams. Merle Haggard. Early Waylon and Willie. That music had actual grit — working-class heartbreak, outlaw defiance, an honesty that didn't pretty itself up for anybody. It was music made by and for people who had genuinely been through something. We are not talking about that music. That music is not the problem.
+Before I go any further, I'll give country music its due: the old stuff was real. Hank Williams. Merle Haggard. Early Waylon and Willie. Music made by people who'd actually been through something, and it showed. Working-class grit, outlaw defiance, heartbreak that didn't dress itself up. That music earned its credibility. I'm not talking about that music. That music is not the problem.
 
-The problem is what crawled out of Nashville in 1991 wearing that music's boots.
+The problem is what crawled out of Nashville in the 1990s wearing that music's boots.
 
-His name was Garth Brooks, and in that year he became the best-selling musical artist in America. Not best-selling country artist. Best-selling *everything*. Michael Jackson. Madonna. U2. All outpaced by a man in a large hat with a polished stadium show and an identity pre-packaged for mass consumption. Millions of Americans bought it — not just the album, but the whole package. The worldview. The wardrobe. The quiet but insistent suggestion of who they were, what they stood for, and — this is the part that matters — who wasn't them.
+In 1991, Garth Brooks became the best-selling musical artist in America. Not best-selling country artist. Best-selling *everything*. Michael Jackson. Madonna. U2. All of them outpaced by a man in a large hat with a stadium production and a persona engineered in a boardroom. And millions of Americans — god bless them — bought it. Not just the album. The whole package. The identity it handed them. The worldview that came pre-loaded. The slow, comfortable certainty of knowing exactly who you were, who your people were, and — crucially — who wasn't.
 
-They went along with it. Cheerfully. Enthusiastically, even.
+They went along with it. Eagerly, in a lot of cases. Passively, in most others. Either way, they went.
 
-This essay is about what happens when you outsource your identity to an industry, and the industry decides, year by year, what that identity is *against*. It is a nature documentary, of sorts. The habitat is America. The species is currently thriving. The ecosystem, somewhat less so.
+This essay is about the going-along. About what happens when an industry spends thirty years building your sense of self for you, and then you're shocked — *shocked* — when that industry turns out to have had opinions about politics the whole time. We're living in the results. It didn't have to be this way. But here we are.
 
 <p class="section-break">&mdash; &bull; &mdash;</p>
 
