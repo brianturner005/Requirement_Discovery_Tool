@@ -13,17 +13,17 @@ description: "A long-form essay arguing that the mainstreaming of country music 
 
 ## I. The Hook
 
-Something happened to American popular music around 1991, and almost no one noticed — or rather, almost no one who noticed thought it mattered.
+Something shifted in American music around 1991. Most people didn't notice. The ones who did mostly shrugged. That's how these things work.
 
-Garth Brooks outsold every other musical artist in America that year. Not country artist. Every artist. Michael Jackson, Madonna, U2 — none of them moved units like a man in a hat singing about friends in low places. It was the kind of cultural seismic shift that only becomes visible in retrospect, like a fault line you didn't know was there until the ground opens beneath your feet.
+I grew up in South Carolina. We made fun of people who listened to country music — not maliciously, just the way kids signal who they are by signaling who they aren't. Country was a marker. It told you something about the person: older, rural, the guy with the gun rack who didn't have a lot of patience for questions. We weren't being fair. But we weren't entirely wrong either.
 
-This essay is about that fault line.
+Here's what I'll give country music before I bury it: the old stuff was real. Hank Williams. Merle Haggard. Early Waylon and Willie. That music had actual grit — working-class heartbreak, outlaw defiance, the kind of honesty that doesn't pretty itself up for anybody. I'm not talking about that music. That music isn't the problem.
 
-It is not about country music as music. It is not an argument that country music is bad, or that the people who love it are bad. It is an argument about something more structural and more troubling: that the mechanisms which drove country music into America's mainstream cultural center — and kept it there — are the same mechanisms that have systematically hollowed out the institutions, habits of mind, and civic solidarity on which democratic governance depends.
+The problem is what came after. What Garth Brooks became in 1991: the best-selling musical artist in America. Not best-selling country artist. Best-selling *everything*. Michael Jackson. Madonna. U2. All of them outpaced by a man in a hat with a polished stadium show and an identity pre-packaged for mass consumption. And millions of people bought it — not just the album, but the whole package. Who it said they were. What it said they stood for. And, eventually, who it said wasn't them.
 
-The story of how country music went from regional subculture to national identity is the story of how America went from pluralism to monoculture, from civic argument to cultural warfare, from democracy's messiness to the seductive simplicity of "us" and "them."
+They went along with it. That's what this essay is about. Not the music. The going-along. The slow, comfortable slide into letting an industry hand you your identity — and then watching that same industry decide, year by year, what that identity was *against*.
 
-And that story matters now more than ever.
+We're living in the results. Let me show you how we got here.
 
 <p class="section-break">&mdash; &bull; &mdash;</p>
 
