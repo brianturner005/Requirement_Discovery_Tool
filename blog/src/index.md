@@ -13,17 +13,19 @@ description: "A long-form essay arguing that the mainstreaming of country music 
 
 ## I. The Hook
 
-Something shifted in American music around 1991. Most people didn't notice. The ones who did mostly shrugged. That's how these things work.
+In the early 1990s, something remarkable happened to American popular music. A species long confined to the rural South and the occasional roadside honky-tonk began to migrate — slowly at first, then with alarming speed — into the mainstream of national culture. Within a decade, it had colonized radio stations, stadium tours, truck commercials, and eventually the American political identity itself. Scientists are still studying how this happened. This essay is one attempt to explain it to the rest of us.
 
-I grew up in South Carolina. We made fun of people who listened to country music — not maliciously, just the way kids signal who they are by signaling who they aren't. Country was a marker. It told you something about the person: older, rural, the guy with the gun rack who didn't have a lot of patience for questions. We weren't being fair. But we weren't entirely wrong either.
+I grew up in South Carolina. We made fun of people who listened to country music — not cruelly, just honestly. Country was a signal. Like a bird's plumage, it told you what you were dealing with before the creature opened its mouth. We understood, even as children, that there was something being communicated by the gun rack, the hat, the particular set of the jaw that said *I don't have a lot of patience for questions.* We weren't wrong. We were, however, unprepared for what came next.
 
-Here's what I'll give country music before I bury it: the old stuff was real. Hank Williams. Merle Haggard. Early Waylon and Willie. That music had actual grit — working-class heartbreak, outlaw defiance, the kind of honesty that doesn't pretty itself up for anybody. I'm not talking about that music. That music isn't the problem.
+It is important, before we proceed, to acknowledge that the old country music was different. Hank Williams. Merle Haggard. Early Waylon and Willie. That music had actual grit — working-class heartbreak, outlaw defiance, an honesty that didn't pretty itself up for anybody. It was music made by and for people who had genuinely been through something. We are not talking about that music. That music is not the problem.
 
-The problem is what came after. What Garth Brooks became in 1991: the best-selling musical artist in America. Not best-selling country artist. Best-selling *everything*. Michael Jackson. Madonna. U2. All of them outpaced by a man in a hat with a polished stadium show and an identity pre-packaged for mass consumption. And millions of people bought it — not just the album, but the whole package. Who it said they were. What it said they stood for. And, eventually, who it said wasn't them.
+The problem is what crawled out of Nashville in 1991 wearing that music's boots.
 
-They went along with it. That's what this essay is about. Not the music. The going-along. The slow, comfortable slide into letting an industry hand you your identity — and then watching that same industry decide, year by year, what that identity was *against*.
+His name was Garth Brooks, and in that year he became the best-selling musical artist in America. Not best-selling country artist. Best-selling *everything*. Michael Jackson. Madonna. U2. All outpaced by a man in a large hat with a polished stadium show and an identity pre-packaged for mass consumption. Millions of Americans bought it — not just the album, but the whole package. The worldview. The wardrobe. The quiet but insistent suggestion of who they were, what they stood for, and — this is the part that matters — who wasn't them.
 
-We're living in the results. Let me show you how we got here.
+They went along with it. Cheerfully. Enthusiastically, even.
+
+This essay is about what happens when you outsource your identity to an industry, and the industry decides, year by year, what that identity is *against*. It is a nature documentary, of sorts. The habitat is America. The species is currently thriving. The ecosystem, somewhat less so.
 
 <p class="section-break">&mdash; &bull; &mdash;</p>
 
