@@ -1,0 +1,12 @@
+{
+  "name": "country-music-democracy-blog",
+  "version": "1.0.0",
+  "description": "A long-form essay on country music and the decay of American democracy",
+  "scripts": {
+    "build": "npx @11ty/eleventy",
+    "serve": "npx @11ty/eleventy --serve"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "^2.0.1"
+  }
+}

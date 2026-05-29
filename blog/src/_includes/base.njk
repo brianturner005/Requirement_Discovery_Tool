@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="{{ description or 'A long-form essay on country music and the decay of American democracy.' }}" />
+  <meta property="og:title" content="{{ title }}" />
+  <meta property="og:description" content="{{ description or 'A long-form essay on country music and the decay of American democracy.' }}" />
+  <meta property="og:type" content="article" />
+  <title>{{ title }}</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<div class="site-wrapper">
+
+  <header class="site-header">
+    <span class="eyebrow">Essay &mdash; American Culture &amp; Politics</span>
+    <h1 class="essay-title">{{ title }}</h1>
+    {% if subtitle %}
+    <p class="essay-subtitle">{{ subtitle }}</p>
+    {% endif %}
+    <p class="byline">{{ author or "Anonymous" }} &nbsp;&bull;&nbsp; {{ date | readableDate if date else "" }}</p>
+  </header>
+
+  <main class="essay-body">
+    {{ content | safe }}
+  </main>
+
+  <footer class="site-footer">
+    <p>All opinions expressed are the author&rsquo;s own. &nbsp;&mdash;&nbsp; Built with Eleventy &amp; Azure Static Web Apps.</p>
+  </footer>
+
+</div>
+
+<script>
+  const bar = document.getElementById('progress-bar');
+  window.addEventListener('scroll', () => {
+    const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+    const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    bar.style.width = scrollHeight > 0 ? (scrollTop / scrollHeight * 100) + '%' : '0%';
+  });
+</script>
+
+</body>
+</html>

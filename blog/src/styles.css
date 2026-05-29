@@ -1,0 +1,244 @@
+/* Base reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #0e0d0b;
+  --bg-paper: #131210;
+  --text: #d4cfc7;
+  --text-muted: #7a7570;
+  --accent: #c8a84b;
+  --accent-dim: #8a7235;
+  --red: #9b2c2c;
+  --border: #2a2720;
+  --font-body: 'Georgia', 'Times New Roman', serif;
+  --font-sans: 'Helvetica Neue', Arial, sans-serif;
+  --max-width: 700px;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 18px;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  line-height: 1.75;
+  min-height: 100vh;
+}
+
+/* Progress bar */
+#progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  background: var(--accent);
+  width: 0%;
+  z-index: 100;
+  transition: width 0.1s linear;
+}
+
+/* Layout */
+.site-wrapper {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* Header */
+.site-header {
+  padding: 4rem 0 3rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 3.5rem;
+}
+
+.eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1.25rem;
+  display: block;
+}
+
+h1.essay-title {
+  font-size: clamp(2rem, 6vw, 3.25rem);
+  font-weight: 700;
+  line-height: 1.15;
+  color: #f0ece4;
+  margin-bottom: 1.25rem;
+  letter-spacing: -0.02em;
+}
+
+.essay-subtitle {
+  font-size: 1.15rem;
+  color: var(--text-muted);
+  font-style: italic;
+  line-height: 1.5;
+  margin-bottom: 1.75rem;
+}
+
+.byline {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+
+/* Pull quote / intro */
+.intro-quote {
+  border-left: 3px solid var(--accent);
+  padding: 0.75rem 1.5rem;
+  margin: 2.5rem 0;
+  font-size: 1.15rem;
+  font-style: italic;
+  color: #c4bfb7;
+  background: rgba(200, 168, 75, 0.04);
+}
+
+/* Essay body */
+.essay-body h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #f0ece4;
+  margin: 3.5rem 0 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  letter-spacing: -0.01em;
+}
+
+.essay-body h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--accent);
+  font-family: var(--font-sans);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  margin: 2rem 0 0.5rem;
+}
+
+.essay-body p {
+  margin-bottom: 1.5rem;
+}
+
+.essay-body p:first-of-type::first-letter {
+  font-size: 3.5em;
+  float: left;
+  line-height: 0.8;
+  margin: 0.1em 0.1em 0 0;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.essay-body strong {
+  color: #f0ece4;
+  font-weight: 700;
+}
+
+.essay-body em {
+  font-style: italic;
+  color: #c4bfb7;
+}
+
+.essay-body blockquote {
+  border-left: 3px solid var(--red);
+  padding: 0.5rem 1.5rem;
+  margin: 2rem 0;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.essay-body blockquote cite {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  font-style: normal;
+  font-family: var(--font-sans);
+  letter-spacing: 0.05em;
+  color: var(--accent-dim);
+}
+
+/* Callout boxes */
+.callout {
+  background: rgba(200, 168, 75, 0.06);
+  border: 1px solid var(--accent-dim);
+  border-radius: 2px;
+  padding: 1.25rem 1.5rem;
+  margin: 2.5rem 0;
+  font-size: 0.9rem;
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  color: #b0ab9f;
+}
+
+/* Section divider */
+.section-break {
+  text-align: center;
+  margin: 3rem 0;
+  color: var(--accent-dim);
+  letter-spacing: 0.5em;
+  font-size: 0.75rem;
+}
+
+/* Timeline */
+.timeline {
+  margin: 2rem 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.timeline li {
+  display: grid;
+  grid-template-columns: 5rem 1fr;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+  font-family: var(--font-sans);
+  line-height: 1.5;
+}
+
+.timeline li .year {
+  color: var(--accent);
+  font-weight: 700;
+  padding-top: 0.1rem;
+}
+
+.timeline li .event {
+  color: var(--text);
+  border-left: 1px solid var(--border);
+  padding-left: 1rem;
+}
+
+/* Footer */
+.site-footer {
+  margin-top: 5rem;
+  padding: 2.5rem 0;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  html {
+    font-size: 16px;
+  }
+  .site-header {
+    padding: 2.5rem 0 2rem;
+  }
+  .timeline li {
+    grid-template-columns: 4rem 1fr;
+  }
+}
