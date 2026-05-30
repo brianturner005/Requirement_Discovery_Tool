@@ -37,7 +37,7 @@ interface FieldWrapperProps {
 function FieldWrapper({ label, required, error, children }: FieldWrapperProps) {
   return (
     <div className="space-y-1.5">
-      <label className="block text-sm font-medium text-slate-700">
+      <label className="block text-sm font-medium text-slate-200">
         {label}
         {required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
@@ -48,13 +48,13 @@ function FieldWrapper({ label, required, error, children }: FieldWrapperProps) {
 }
 
 const inputClass =
-  'w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-slate-800 placeholder:text-slate-400';
+  'w-full px-3 py-2 text-sm border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-slate-100 placeholder:text-slate-500 bg-slate-900';
 
 const selectClass =
-  'w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-slate-800 bg-white';
+  'w-full px-3 py-2 text-sm border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-slate-100 bg-slate-900';
 
 const textareaClass =
-  'w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-slate-800 placeholder:text-slate-400 resize-y min-h-[80px]';
+  'w-full px-3 py-2 text-sm border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-slate-100 placeholder:text-slate-500 bg-slate-900 resize-y min-h-[80px]';
 
 export default function RequirementFormPage() {
   const { reqId } = useParams<{ reqId: string }>();
@@ -171,24 +171,24 @@ export default function RequirementFormPage() {
             <ChevronRight className="w-3 h-3" />
             <Link
               to={`/requirements/${reqId}`}
-              className="hover:text-indigo-600 font-mono font-medium text-slate-700"
+              className="hover:text-indigo-600 font-mono font-medium text-slate-200"
             >
               {reqId}
             </Link>
           </>
         )}
         <ChevronRight className="w-3 h-3" />
-        <span className="text-slate-700">{isEdit ? 'Edit' : 'New Requirement'}</span>
+        <span className="text-slate-200">{isEdit ? 'Edit' : 'New Requirement'}</span>
       </div>
 
-      <h1 className="text-2xl font-bold text-slate-900 mb-8">
+      <h1 className="text-2xl font-bold text-slate-50 mb-8">
         {isEdit ? 'Edit Requirement' : 'New Requirement'}
       </h1>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Core Info */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-5">
-          <h2 className="text-sm font-semibold text-slate-800 border-b border-slate-100 pb-3">
+        <div className="bg-slate-800 rounded-xl border border-slate-700 shadow-sm p-6 space-y-5">
+          <h2 className="text-sm font-semibold text-slate-100 border-b border-slate-700 pb-3">
             Core Information
           </h2>
 
@@ -277,8 +277,8 @@ export default function RequirementFormPage() {
         </div>
 
         {/* Classification */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-5">
-          <h2 className="text-sm font-semibold text-slate-800 border-b border-slate-100 pb-3">
+        <div className="bg-slate-800 rounded-xl border border-slate-700 shadow-sm p-6 space-y-5">
+          <h2 className="text-sm font-semibold text-slate-100 border-b border-slate-700 pb-3">
             Classification
           </h2>
 
@@ -333,8 +333,8 @@ export default function RequirementFormPage() {
         </div>
 
         {/* Impact & Notes */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-5">
-          <h2 className="text-sm font-semibold text-slate-800 border-b border-slate-100 pb-3">
+        <div className="bg-slate-800 rounded-xl border border-slate-700 shadow-sm p-6 space-y-5">
+          <h2 className="text-sm font-semibold text-slate-100 border-b border-slate-700 pb-3">
             Impact &amp; Notes
           </h2>
 
@@ -365,7 +365,7 @@ export default function RequirementFormPage() {
 
         {/* Error */}
         {submitError && (
-          <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+          <div className="flex items-center gap-3 p-4 bg-red-500/20 border border-red-700 rounded-lg text-sm text-red-700">
             <AlertCircle className="w-4 h-4 flex-shrink-0" />
             {submitError}
           </div>
@@ -375,7 +375,7 @@ export default function RequirementFormPage() {
         <div className="flex items-center justify-end gap-3 pb-4">
           <Link
             to={isEdit ? `/requirements/${reqId}` : '/requirements'}
-            className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors shadow-sm"
+            className="px-4 py-2 text-sm font-medium text-slate-200 bg-slate-800 border border-slate-700 rounded-lg hover:bg-slate-700 transition-colors shadow-sm"
           >
             Cancel
           </Link>

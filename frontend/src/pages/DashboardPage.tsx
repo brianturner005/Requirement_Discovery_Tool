@@ -42,11 +42,11 @@ interface StatCardProps {
 
 function StatCard({ title, value, icon: Icon, iconBg, iconColor }: StatCardProps) {
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+    <div className="bg-slate-800 rounded-xl border border-slate-700 p-6 shadow-sm">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-medium text-slate-500">{title}</p>
-          <p className="text-3xl font-bold text-slate-900 mt-1">{value}</p>
+          <p className="text-3xl font-bold text-slate-50 mt-1">{value}</p>
         </div>
         <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${iconBg}`}>
           <Icon className={`w-6 h-6 ${iconColor}`} />
@@ -72,7 +72,7 @@ export default function DashboardPage() {
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
           <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-3" />
-          <p className="text-slate-600">Failed to load dashboard stats.</p>
+          <p className="text-slate-300">Failed to load dashboard stats.</p>
         </div>
       </div>
     );
@@ -96,7 +96,7 @@ export default function DashboardPage() {
     <div className="p-8 space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
+        <h1 className="text-2xl font-bold text-slate-50">Dashboard</h1>
         <p className="text-slate-500 mt-1">Overview of your requirements discovery process</p>
       </div>
 
@@ -106,28 +106,28 @@ export default function DashboardPage() {
           title="Total Requirements"
           value={stats.total_requirements}
           icon={FileText}
-          iconBg="bg-indigo-50"
+          iconBg="bg-indigo-500/20"
           iconColor="text-indigo-600"
         />
         <StatCard
           title="Draft"
           value={draftCount}
           icon={Clock}
-          iconBg="bg-slate-100"
-          iconColor="text-slate-600"
+          iconBg="bg-slate-700"
+          iconColor="text-slate-200"
         />
         <StatCard
           title="Under Review"
           value={underReviewCount}
           icon={TrendingUp}
-          iconBg="bg-yellow-50"
+          iconBg="bg-yellow-500/20"
           iconColor="text-yellow-600"
         />
         <StatCard
           title="Approved"
           value={approvedCount}
           icon={CheckCircle}
-          iconBg="bg-green-50"
+          iconBg="bg-green-500/20"
           iconColor="text-green-600"
         />
       </div>
@@ -135,8 +135,8 @@ export default function DashboardPage() {
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* By Status */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-          <h2 className="text-base font-semibold text-slate-800 mb-4">Requirements by Status</h2>
+        <div className="bg-slate-800 rounded-xl border border-slate-700 p-6 shadow-sm">
+          <h2 className="text-base font-semibold text-slate-100 mb-4">Requirements by Status</h2>
           {statusChartData.length === 0 ? (
             <div className="h-48 flex items-center justify-center text-slate-400 text-sm">
               No data available
@@ -144,21 +144,23 @@ export default function DashboardPage() {
           ) : (
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={statusChartData} margin={{ top: 4, right: 8, left: -20, bottom: 40 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                 <XAxis
                   dataKey="name"
-                  tick={{ fontSize: 11, fill: '#64748b' }}
+                  tick={{ fontSize: 11, fill: '#94a3b8' }}
                   angle={-35}
                   textAnchor="end"
                   interval={0}
                 />
-                <YAxis tick={{ fontSize: 11, fill: '#64748b' }} allowDecimals={false} />
+                <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} allowDecimals={false} />
                 <Tooltip
                   contentStyle={{
                     fontSize: 12,
                     borderRadius: 8,
-                    border: '1px solid #e2e8f0',
-                    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
+                    background: '#1e293b',
+                    border: '1px solid #334155',
+                    color: '#e2e8f0',
+                    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.4)',
                   }}
                 />
                 <Bar dataKey="value" name="Count" radius={[4, 4, 0, 0]}>
@@ -175,8 +177,8 @@ export default function DashboardPage() {
         </div>
 
         {/* By Priority */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-          <h2 className="text-base font-semibold text-slate-800 mb-4">Requirements by Priority</h2>
+        <div className="bg-slate-800 rounded-xl border border-slate-700 p-6 shadow-sm">
+          <h2 className="text-base font-semibold text-slate-100 mb-4">Requirements by Priority</h2>
           {priorityChartData.length === 0 ? (
             <div className="h-48 flex items-center justify-center text-slate-400 text-sm">
               No data available
@@ -184,21 +186,23 @@ export default function DashboardPage() {
           ) : (
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={priorityChartData} margin={{ top: 4, right: 8, left: -20, bottom: 40 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                 <XAxis
                   dataKey="name"
-                  tick={{ fontSize: 11, fill: '#64748b' }}
+                  tick={{ fontSize: 11, fill: '#94a3b8' }}
                   angle={-35}
                   textAnchor="end"
                   interval={0}
                 />
-                <YAxis tick={{ fontSize: 11, fill: '#64748b' }} allowDecimals={false} />
+                <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} allowDecimals={false} />
                 <Tooltip
                   contentStyle={{
                     fontSize: 12,
                     borderRadius: 8,
-                    border: '1px solid #e2e8f0',
-                    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
+                    background: '#1e293b',
+                    border: '1px solid #334155',
+                    color: '#e2e8f0',
+                    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.4)',
                   }}
                 />
                 <Bar dataKey="value" name="Count" radius={[4, 4, 0, 0]}>
@@ -216,9 +220,9 @@ export default function DashboardPage() {
       </div>
 
       {/* Recent Requirements */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-          <h2 className="text-base font-semibold text-slate-800">Recent Requirements</h2>
+      <div className="bg-slate-800 rounded-xl border border-slate-700 shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-700 flex items-center justify-between">
+          <h2 className="text-base font-semibold text-slate-100">Recent Requirements</h2>
           <Link
             to="/requirements"
             className="text-sm text-indigo-600 hover:text-indigo-800 font-medium"
@@ -234,7 +238,7 @@ export default function DashboardPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-100">
+                <tr className="bg-slate-900 border-b border-slate-700">
                   <th className="text-left px-6 py-3 font-medium text-slate-500">ID</th>
                   <th className="text-left px-6 py-3 font-medium text-slate-500">Title</th>
                   <th className="text-left px-6 py-3 font-medium text-slate-500">Status</th>
@@ -242,9 +246,9 @@ export default function DashboardPage() {
                   <th className="text-left px-6 py-3 font-medium text-slate-500">Updated</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-50">
+              <tbody className="divide-y divide-slate-700">
                 {stats.recent_requirements.map((req) => (
-                  <tr key={req.id} className="hover:bg-slate-50 transition-colors">
+                  <tr key={req.id} className="hover:bg-slate-700 transition-colors">
                     <td className="px-6 py-3">
                       <Link
                         to={`/requirements/${req.req_id}`}
@@ -256,7 +260,7 @@ export default function DashboardPage() {
                     <td className="px-6 py-3">
                       <Link
                         to={`/requirements/${req.req_id}`}
-                        className="text-slate-800 hover:text-indigo-700 font-medium line-clamp-1"
+                        className="text-slate-100 hover:text-indigo-700 font-medium line-clamp-1"
                       >
                         {req.title}
                       </Link>
