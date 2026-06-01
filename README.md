@@ -21,6 +21,8 @@ A centralized web application for legacy system modernization teams to **discove
 - [Troubleshooting](#troubleshooting)
 - [Roadmap](#roadmap)
 
+> **v2** adds JWT authentication with role-based access control and CSV export. See [Authentication](#authentication) for first-time setup.
+
 ---
 
 ## Overview
@@ -101,6 +103,19 @@ Link requirements to one another to capture traceability and dependency relation
 - Maintain a registry of systems (name, description, system type)
 - Both are referenced from requirements and protected from accidental deletion if in use
 
+### Authentication & Role-Based Access
+JWT-based authentication with two roles:
+
+| Role | Permissions |
+|---|---|
+| **Admin** | Full access to all features + user management (list users, change roles, deactivate accounts) |
+| **Analyst** | Full CRUD on all requirements, stakeholders, systems, evidence, and tags |
+
+The first user to register is automatically assigned the Admin role. All subsequent registrations default to Analyst. Registration is self-service — no invite required.
+
+### CSV Export
+Download the current filtered requirements list as a CSV file directly from the requirements page. The export respects all active filters (status, priority, source, search query) and includes all metadata columns.
+
 ### Tags
 Free-form labels for cross-cutting concerns. Tags are normalized to lowercase and auto-created on requirement save. Useful for grouping by domain (`auth`, `billing`), risk level (`high-risk`), or modernization phase (`phase-1`).
 
@@ -121,8 +136,9 @@ Live overview of the requirements registry:
 | Database | SQLite + SQLAlchemy 2.0 async | Zero-config relational database |
 | Migrations | Alembic | Schema version control |
 | Validation | Pydantic v2 | Request/response schemas |
-| Frontend | React 18 + TypeScript | UI framework |
-| Build | Vite 5 | Frontend build tool |
+| Auth — JWT | python-jose + passlib[bcrypt] | Token signing and password hashing |
+| Frontend | React 19 + TypeScript | UI framework |
+| Build | Vite 8 | Frontend build tool |
 | Styling | Tailwind CSS v4 | Utility-first CSS |
 | Server State | TanStack Query v5 | Data fetching, caching, mutations |
 | Forms | React Hook Form + Zod | Type-safe form management |
@@ -187,6 +203,12 @@ The application will be available at `http://localhost:5173`.
 
 > The Vite dev server proxies all `/api` requests to `http://localhost:8000`, so no CORS configuration is needed during development.
 
+### 4. First-Time Login
+
+On first load you'll be redirected to `/register`. The first account created is automatically the **Admin**. Subsequent registrations default to **Analyst**.
+
+After registering, you'll be logged in automatically and redirected to the dashboard. Use the sidebar's **Users** link (admin only) to manage team access.
+
 ---
 
 ## Project Structure
@@ -200,7 +222,13 @@ Requirement_Discovery_Tool/
 │   │   ├── config.py                # Settings loaded from environment variables
 │   │   ├── database.py              # Async SQLAlchemy engine, session factory, Base
 │   │   │
+│   │   ├── auth/                    # JWT authentication
+│   │   │   ├── utils.py             # hash_password, verify_password, create_access_token
+│   │   │   ├── dependencies.py      # get_current_user, require_admin FastAPI dependencies
+│   │   │   └── schemas.py           # RegisterRequest, LoginRequest, TokenResponse, UserResponse
+│   │   │
 │   │   ├── models/                  # SQLAlchemy ORM models
+│   │   │   ├── user.py              # User model (id, email, full_name, role, is_active)
 │   │   │   ├── requirement.py       # Central Requirement model
 │   │   │   ├── stakeholder.py
 │   │   │   ├── system.py
@@ -217,7 +245,9 @@ Requirement_Discovery_Tool/
 │   │   │   └── evidence.py
 │   │   │
 │   │   ├── routers/                 # FastAPI route handlers
-│   │   │   ├── requirements.py      # /api/v1/requirements
+│   │   │   ├── auth.py              # /api/v1/auth — register, login, me (public)
+│   │   │   ├── users.py             # /api/v1/users — admin-only user management
+│   │   │   ├── requirements.py      # /api/v1/requirements + /export
 │   │   │   ├── stakeholders.py      # /api/v1/stakeholders
 │   │   │   ├── systems.py           # /api/v1/systems
 │   │   │   ├── tags.py              # /api/v1/tags
@@ -229,8 +259,13 @@ Requirement_Discovery_Tool/
 │   │       └── evidence_service.py     # File storage, validation, path safety
 │   │
 │   ├── tests/
-│   │   ├── conftest.py              # In-memory test database, async client fixture
-│   │   └── test_requirements.py     # 11 tests covering CRUD, workflow, search
+│   │   ├── conftest.py              # In-memory test DB, async client, auth bypass fixture
+│   │   ├── test_requirements.py     # Requirements CRUD, workflow, search
+│   │   ├── test_stakeholders.py
+│   │   ├── test_systems.py
+│   │   ├── test_tags.py
+│   │   ├── test_evidence.py
+│   │   └── test_dashboard.py        # 50 tests total
 │   │
 │   ├── data/                        # SQLite database (gitignored)
 │   ├── uploads/                     # Evidence file storage (gitignored)
@@ -239,11 +274,14 @@ Requirement_Discovery_Tool/
 │
 └── frontend/
     └── src/
-        ├── App.tsx                  # React Router route definitions
-        ├── main.tsx                 # App entry point, QueryClientProvider
+        ├── App.tsx                  # React Router route definitions, ProtectedRoute
+        ├── main.tsx                 # App entry point, AuthProvider, QueryClientProvider
+        │
+        ├── context/
+        │   └── AuthContext.tsx      # JWT token + user state, login/register/logout
         │
         ├── api/                     # Axios API client functions (typed)
-        │   ├── client.ts            # Axios instance, base URL, error interceptors
+        │   ├── client.ts            # Axios instance, Bearer token interceptor, 401 handler
         │   ├── requirements.ts
         │   ├── stakeholders.ts
         │   ├── systems.ts
@@ -256,15 +294,18 @@ Requirement_Discovery_Tool/
         │   └── useDashboard.ts
         │
         ├── pages/                   # Route-level components
+        │   ├── LoginPage.tsx        # Public — email/password login form
+        │   ├── RegisterPage.tsx     # Public — name/email/password registration form
+        │   ├── UsersPage.tsx        # Admin only — user list, role toggle, deactivate
         │   ├── DashboardPage.tsx
-        │   ├── RequirementsListPage.tsx
+        │   ├── RequirementsListPage.tsx  # Includes Export CSV button
         │   ├── RequirementDetailPage.tsx
-        │   ├── RequirementFormPage.tsx  # Handles both create and edit
+        │   ├── RequirementFormPage.tsx   # Handles both create and edit
         │   ├── StakeholdersPage.tsx
         │   └── SystemsPage.tsx
         │
         ├── components/
-        │   ├── layout/              # AppShell, Sidebar
+        │   ├── layout/              # AppShell, Sidebar (user name + logout + Users link)
         │   └── requirements/        # StatusBadge, PriorityBadge
         │
         ├── lib/
@@ -390,6 +431,33 @@ Base URL: `http://localhost:8000/api/v1`
 
 Full interactive documentation is available at `http://localhost:8000/docs` when the backend is running.
 
+All endpoints except `/auth/register` and `/auth/login` require a valid JWT in the `Authorization: Bearer <token>` header.
+
+### Authentication
+
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| `POST` | `/auth/register` | none | Create account. First user → Admin, others → Analyst. Returns token. |
+| `POST` | `/auth/login` | none | Login with email + password. Returns token + user profile. |
+| `GET` | `/auth/me` | any | Returns the current user's profile. |
+
+**Example: Register and capture token**
+
+```bash
+TOKEN=$(curl -s -X POST http://localhost:8000/api/v1/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@example.com","full_name":"Admin User","password":"mypassword"}' \
+  | python3 -c "import sys,json; print(json.load(sys.stdin)['access_token'])")
+```
+
+### Users (Admin only)
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/users` | List all users |
+| `PATCH` | `/users/{id}/role` | Change a user's role (`admin` or `analyst`) |
+| `PATCH` | `/users/{id}/deactivate` | Deactivate a user account |
+
 ### Requirements
 
 | Method | Endpoint | Description |
@@ -402,6 +470,7 @@ Full interactive documentation is available at `http://localhost:8000/docs` when
 | `PATCH` | `/requirements/{req_id}/status` | Transition status (enforces valid workflow) |
 | `POST` | `/requirements/{req_id}/relations/{target}` | Link two requirements |
 | `DELETE` | `/requirements/{req_id}/relations/{target}` | Remove a relation |
+| `GET` | `/requirements/export` | Download filtered requirements as CSV |
 
 **GET `/requirements` — Query Parameters:**
 
@@ -425,6 +494,7 @@ Full interactive documentation is available at `http://localhost:8000/docs` when
 ```bash
 curl -X POST http://localhost:8000/api/v1/requirements \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
   -d '{
     "title": "User sessions must expire after 30 minutes of inactivity",
     "description": "The system must automatically terminate user sessions after 30 consecutive minutes with no activity to reduce exposure from unattended terminals.",
@@ -498,7 +568,8 @@ Security was designed in from the start, not bolted on:
 | **Security Headers** | `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`, `X-XSS-Protection: 1; mode=block` |
 | **CORS** | Explicitly configured via `CORS_ORIGINS` env var — no wildcard `*` in production |
 | **No Hardcoded Secrets** | All configuration via environment variables, validated at startup by `pydantic-settings` |
-| **Auth-Ready Architecture** | All routes use FastAPI dependency injection — a `get_current_user` dependency can be added to any route without restructuring |
+| **JWT Authentication** | `python-jose` (HS256) with 8-hour token expiry; `passlib[bcrypt]` for password hashing; all protected routes use `get_current_user` dependency at the router level |
+| **Role Enforcement** | Admin-only routes use a `require_admin` dependency that returns HTTP 403 for non-admin tokens |
 
 ---
 
@@ -513,7 +584,10 @@ DATABASE_URL=sqlite+aiosqlite:///./data/requirements.db
 UPLOAD_DIR=./uploads
 MAX_UPLOAD_SIZE_MB=25
 CORS_ORIGINS=["http://localhost:5173"]
-APP_VERSION=0.1.0
+APP_VERSION=0.2.0
+SECRET_KEY=change-me-in-production-use-a-long-random-string
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=480
 ```
 
 | Variable | Default | Description |
@@ -522,7 +596,12 @@ APP_VERSION=0.1.0
 | `UPLOAD_DIR` | `./uploads` | Directory for evidence file storage |
 | `MAX_UPLOAD_SIZE_MB` | `25` | Maximum allowed upload size in megabytes |
 | `CORS_ORIGINS` | `["http://localhost:5173"]` | JSON array of allowed frontend origins |
-| `APP_VERSION` | `0.1.0` | Returned by the `/health` endpoint |
+| `APP_VERSION` | `0.2.0` | Returned by the `/health` endpoint |
+| `SECRET_KEY` | *(change this)* | Secret used to sign JWTs — use a long random string in production |
+| `ALGORITHM` | `HS256` | JWT signing algorithm |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | `480` | Token lifetime in minutes (default: 8 hours) |
+
+> **Important:** Change `SECRET_KEY` before deploying. Generate one with: `python -c "import secrets; print(secrets.token_hex(32))"`
 
 ### Frontend (`frontend/.env`)
 
@@ -546,19 +625,15 @@ source .venv/bin/activate
 pytest -v
 ```
 
-Tests use an in-memory SQLite database — no setup required. The test suite covers:
+Tests use an in-memory SQLite database — no setup required. Authentication is bypassed via a `get_current_user` dependency override in `conftest.py`, so all 50 tests run without needing a real token.
 
-- Requirement creation with auto-generated sequential IDs
-- Sequential ID assignment (REQ-001, REQ-002, REQ-003)
-- Validation of required fields
-- List pagination
-- Filtering by status
-- Full-text search by title
-- Valid status workflow transitions
-- Invalid status transition rejection (HTTP 422)
-- Adding and removing requirement relations
-- Requirement deletion
-- Paginated list responses
+**Coverage (50 tests):**
+- Requirements: CRUD, auto-generated IDs, pagination, filtering, search, status workflow transitions, relations
+- Stakeholders: CRUD, deletion protection when in use
+- Systems: CRUD, deletion protection when in use
+- Tags: auto-creation, normalization, usage counts
+- Evidence: file upload, download, delete, type/size validation
+- Dashboard: aggregate stats
 
 ### Frontend
 
@@ -589,6 +664,12 @@ The file type is not on the allowlist (`.pdf`, `.docx`, `.xlsx`, `.png`, `.jpg`,
 **"Cannot delete stakeholder" error**
 One or more requirements are linked to this stakeholder. Reassign or delete those requirements first.
 
+**App redirects to `/login` immediately**
+Your session token has expired or was cleared. Register a new account (or use an existing one) to log back in. Token lifetime is controlled by `ACCESS_TOKEN_EXPIRE_MINUTES` (default: 8 hours).
+
+**"Registration failed" — first registration only**
+Ensure the backend is running and the `users` table was created. If you started the backend before the v2 code was in place, delete `backend/data/requirements.db` and restart — the lifespan event will recreate all tables including `users`.
+
 **Database in unexpected state**
 Delete `backend/data/requirements.db` and restart the server. The database will be recreated automatically on startup.
 
@@ -607,6 +688,6 @@ The current MVP covers **Requirements Management**. Planned feature areas from t
 | **Test Case Integration** | Link requirements to test cases and track validation status |
 | **Defect Traceability** | Link defects back to requirements for regression analysis |
 | **AI-Assisted Analysis** | Transcript summarization, duplicate detection, risk flagging, change impact suggestions |
-| **Authentication & Authorization** | User accounts, role-based access, approval audit trail |
+| **Excel / Word Export** | Expand export beyond CSV to Excel and formatted Word documents for stakeholder reporting |
+| **Approval Audit Trail** | Record who approved or rejected each status transition, and when |
 | **PostgreSQL Support** | Change `DATABASE_URL` to a PostgreSQL connection string — the ORM code requires no changes |
-| **Export** | Export requirements to CSV, Excel, or Word for stakeholder reporting |
