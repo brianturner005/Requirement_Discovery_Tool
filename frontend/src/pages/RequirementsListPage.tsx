@@ -11,6 +11,7 @@ import {
   AlertCircle,
   ChevronLeft,
   ChevronRight,
+  Download,
 } from 'lucide-react';
 import { useRequirements, useDeleteRequirement } from '../hooks/useRequirements';
 import StatusBadge from '../components/requirements/StatusBadge';
@@ -18,6 +19,7 @@ import PriorityBadge from '../components/requirements/PriorityBadge';
 import { formatRelativeTime } from '../lib/utils';
 import { STATUS_OPTIONS, PRIORITY_OPTIONS, SOURCE_OPTIONS } from '../lib/constants';
 import type { RequirementsFilters } from '../types';
+import apiClient from '../api/client';
 
 type SortField = 'req_id' | 'title' | 'status' | 'priority' | 'source' | 'updated_at';
 
@@ -90,6 +92,24 @@ export default function RequirementsListPage() {
     setDeleteConfirm(null);
   };
 
+  const handleExport = async () => {
+    const params = new URLSearchParams();
+    if (debouncedSearch) params.set('q', debouncedSearch);
+    if (status) params.set('status', status);
+    if (priority) params.set('priority', priority);
+    if (source) params.set('source', source);
+    const qs = params.toString();
+    const { data } = await apiClient.get(`/requirements/export${qs ? `?${qs}` : ''}`, {
+      responseType: 'blob',
+    });
+    const url = URL.createObjectURL(data);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `requirements-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const requirements = data?.items ?? [];
   const total = data?.total ?? 0;
   const pages = data?.pages ?? 1;
@@ -104,13 +124,22 @@ export default function RequirementsListPage() {
             {total > 0 ? `${total} requirement${total !== 1 ? 's' : ''}` : 'No requirements yet'}
           </p>
         </div>
-        <Link
-          to="/requirements/new"
-          className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm"
-        >
-          <Plus className="w-4 h-4" />
-          New Requirement
-        </Link>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleExport}
+            className="inline-flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-slate-200 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm"
+          >
+            <Download className="w-4 h-4" />
+            Export CSV
+          </button>
+          <Link
+            to="/requirements/new"
+            className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm"
+          >
+            <Plus className="w-4 h-4" />
+            New Requirement
+          </Link>
+        </div>
       </div>
 
       {/* Filters */}

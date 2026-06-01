@@ -1,12 +1,13 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from app.auth.dependencies import get_current_user
 from app.config import settings
 from app.database import create_tables
-from app.routers import dashboard, evidence, requirements, stakeholders, systems, tags
+from app.routers import auth, dashboard, evidence, requirements, stakeholders, systems, tags, users
 
 
 @asynccontextmanager
@@ -41,13 +42,21 @@ async def security_headers(request: Request, call_next):
 
 
 API_PREFIX = "/api/v1"
+_authenticated = [Depends(get_current_user)]
 
-app.include_router(requirements.router, prefix=API_PREFIX)
-app.include_router(stakeholders.router, prefix=API_PREFIX)
-app.include_router(systems.router, prefix=API_PREFIX)
-app.include_router(tags.router, prefix=API_PREFIX)
-app.include_router(evidence.router, prefix=API_PREFIX)
-app.include_router(dashboard.router, prefix=API_PREFIX)
+# Public — no auth required
+app.include_router(auth.router, prefix=API_PREFIX)
+
+# Admin-gated internally (require_admin on each endpoint)
+app.include_router(users.router, prefix=API_PREFIX)
+
+# All require a valid JWT
+app.include_router(requirements.router, prefix=API_PREFIX, dependencies=_authenticated)
+app.include_router(stakeholders.router, prefix=API_PREFIX, dependencies=_authenticated)
+app.include_router(systems.router, prefix=API_PREFIX, dependencies=_authenticated)
+app.include_router(tags.router, prefix=API_PREFIX, dependencies=_authenticated)
+app.include_router(evidence.router, prefix=API_PREFIX, dependencies=_authenticated)
+app.include_router(dashboard.router, prefix=API_PREFIX, dependencies=_authenticated)
 
 
 @app.get("/health")

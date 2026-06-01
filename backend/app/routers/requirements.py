@@ -1,6 +1,10 @@
+import csv
+import io
 import math
+from datetime import date
 
 from fastapi import APIRouter, Depends, Query
+from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
@@ -81,6 +85,60 @@ async def list_requirements(
         page=page,
         page_size=page_size,
         pages=max(1, math.ceil(total / page_size)),
+    )
+
+
+@router.get("/export")
+async def export_requirements(
+    q: str | None = Query(None),
+    status: list[str] | None = Query(None),
+    priority: list[str] | None = Query(None),
+    source: list[str] | None = Query(None),
+    system_id: list[int] | None = Query(None),
+    stakeholder_id: list[int] | None = Query(None),
+    tag: list[str] | None = Query(None),
+    confidence: list[str] | None = Query(None),
+    db: AsyncSession = Depends(get_db),
+):
+    items, _ = await svc.list_requirements(
+        db,
+        q=q, status=status, priority=priority, source=source,
+        system_id=system_id, stakeholder_id=stakeholder_id,
+        tag=tag, confidence=confidence,
+        page=1, page_size=10_000,
+    )
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow([
+        "ID", "Title", "Status", "Priority", "Source", "Confidence",
+        "Stakeholder", "System", "Tags", "Business Impact",
+        "Technical Impact", "Notes", "Created", "Updated",
+    ])
+    for r in items:
+        writer.writerow([
+            r.req_id,
+            r.title,
+            r.status,
+            r.priority,
+            r.source,
+            r.confidence,
+            r.stakeholder.name if r.stakeholder else "",
+            r.system.name if r.system else "",
+            ", ".join(t.name for t in r.tags),
+            r.business_impact or "",
+            r.technical_impact or "",
+            r.notes or "",
+            r.created_at.strftime("%Y-%m-%d"),
+            r.updated_at.strftime("%Y-%m-%d"),
+        ])
+
+    output.seek(0)
+    filename = f"requirements-{date.today().isoformat()}.csv"
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
 
 
