@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Requirements Discovery &amp; Traceability Platform</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel-border: #334155;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --indigo: #6366f1;
+    --indigo-light: #818cf8;
+    --green: #34d399;
+    --amber: #fbbf24;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* Header */
+  header {
+    border-bottom: 1px solid var(--panel-border);
+    padding: 20px 0;
+  }
+  header .container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .logo {
+    width: 36px;
+    height: 36px;
+    background: var(--indigo);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: white;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  header .brand-text p:first-child {
+    margin: 0;
+    font-weight: 700;
+    color: white;
+    font-size: 15px;
+  }
+  header .brand-text p:last-child {
+    margin: 0;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* Hero */
+  .hero {
+    padding: 72px 0 56px;
+    text-align: center;
+  }
+  .hero h1 {
+    font-size: 2.5rem;
+    margin: 0 0 16px;
+    color: white;
+    letter-spacing: -0.02em;
+  }
+  .hero p.lead {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 640px;
+    margin: 0 auto 28px;
+  }
+  .badge-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid var(--panel-border);
+    background: var(--panel);
+    color: var(--text);
+  }
+  .badge.live { border-color: rgba(52,211,153,0.3); color: var(--green); background: rgba(52,211,153,0.08); }
+  .badge.dot { width: 8px; height: 8px; border-radius: 999px; background: currentColor; padding: 0; }
+
+  /* Sections */
+  section {
+    padding: 56px 0;
+    border-top: 1px solid var(--panel-border);
+  }
+  section h2 {
+    font-size: 1.6rem;
+    color: white;
+    margin: 0 0 8px;
+    letter-spacing: -0.01em;
+  }
+  section .section-intro {
+    color: var(--muted);
+    margin: 0 0 32px;
+    max-width: 680px;
+  }
+
+  /* Problem table */
+  .problem-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--panel-border);
+    border: 1px solid var(--panel-border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .problem-grid > div {
+    background: var(--panel);
+    padding: 16px 18px;
+    font-size: 14px;
+  }
+  .problem-grid .head {
+    background: #0f172a;
+    font-weight: 600;
+    color: var(--muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .problem-grid .problem { color: var(--text); }
+  .problem-grid .impact { color: var(--muted); }
+
+  /* Feature grid */
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+  }
+  .feature-card {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .feature-card .icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: rgba(99,102,241,0.15);
+    color: var(--indigo-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+  .feature-card h3 {
+    margin: 0 0 6px;
+    font-size: 1rem;
+    color: white;
+  }
+  .feature-card p {
+    margin: 0;
+    font-size: 13.5px;
+    color: var(--muted);
+  }
+
+  /* Architecture / how it works */
+  .stack-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+  .stack-pill {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 13px;
+    color: var(--text);
+  }
+  .stack-pill b { color: var(--indigo-light); }
+
+  .flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+  }
+  .flow-node {
+    background: #0f172a;
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 13px;
+    min-width: 120px;
+  }
+  .flow-node b { color: white; display: block; margin-bottom: 2px; }
+  .flow-node span { color: var(--muted); font-size: 12px; }
+  .flow-arrow { color: var(--muted); font-size: 18px; }
+
+  /* Workflow */
+  .workflow {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+  .wf-step {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 999px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .wf-step.draft { color: var(--muted); }
+  .wf-step.review { color: var(--amber); }
+  .wf-step.approved { color: var(--green); }
+  .wf-step.progress { color: var(--indigo-light); }
+  .wf-arrow { color: var(--panel-border); font-size: 16px; }
+
+  /* Roles */
+  .role-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+  }
+  .role-card {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .role-card h3 {
+    margin: 0 0 10px;
+    color: white;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .role-tag {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 600;
+  }
+  .role-tag.admin { background: rgba(99,102,241,0.18); color: var(--indigo-light); }
+  .role-tag.analyst { background: rgba(148,163,184,0.18); color: var(--muted); }
+  .role-card ul {
+    margin: 0;
+    padding-left: 18px;
+    color: var(--muted);
+    font-size: 13.5px;
+  }
+  .role-card li { margin-bottom: 4px; }
+
+  /* Status / roadmap */
+  .status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+  }
+  .status-card {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .status-card h3 {
+    margin: 0 0 12px;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .status-card.done h3 { color: var(--green); }
+  .status-card.next h3 { color: var(--amber); }
+  .status-card.future h3 { color: var(--indigo-light); }
+  .status-card ul {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 13.5px;
+    color: var(--text);
+  }
+  .status-card li { margin-bottom: 6px; }
+  .status-card.future li { color: var(--muted); }
+
+  footer {
+    border-top: 1px solid var(--panel-border);
+    padding: 32px 0;
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  footer a { color: var(--indigo-light); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  @media (max-width: 640px) {
+    .problem-grid { grid-template-columns: 1fr; }
+    .problem-grid .head:nth-child(2) { display: none; }
+    .hero h1 { font-size: 1.9rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <div class="logo">RD</div>
+    <div class="brand-text">
+      <p>Req Discovery</p>
+      <p>Traceability Platform</p>
+    </div>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="container">
+    <h1>Stop losing requirements to tribal knowledge</h1>
+    <p class="lead">
+      A centralized workspace for legacy system modernization teams to capture, organize, and track
+      requirements as they're discovered &mdash; not just at project kickoff &mdash; with full traceability
+      from idea to evidence to decision.
+    </p>
+    <div class="badge-row">
+      <span class="badge live"><span class="badge dot"></span> v2 &mdash; Auth &amp; CSV Export shipped</span>
+      <span class="badge">React + TypeScript</span>
+      <span class="badge">FastAPI + SQLite</span>
+      <span class="badge">Self-hosted</span>
+    </div>
+  </div>
+</div>
+
+<section>
+  <div class="container">
+    <h2>The problem</h2>
+    <p class="section-intro">
+      Legacy modernization efforts commonly stall for the same reasons. Requirements surface mid-project,
+      business logic lives only in people's heads, and there's no durable record connecting a requirement
+      to where it came from.
+    </p>
+    <div class="problem-grid">
+      <div class="head">Problem</div>
+      <div class="head">Impact</div>
+
+      <div class="problem">Requirements discovered mid-project</div>
+      <div class="impact">Scope creep, missed deadlines</div>
+
+      <div class="problem">Business logic undocumented</div>
+      <div class="impact">Accidental regression during rewrite</div>
+
+      <div class="problem">Knowledge locked in individuals</div>
+      <div class="impact">Risk when SMEs leave or are unavailable</div>
+
+      <div class="problem">Assumptions never written down</div>
+      <div class="impact">Rework when assumptions prove wrong</div>
+
+      <div class="problem">Decisions not recorded</div>
+      <div class="impact">Future teams repeat past mistakes</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>What it does</h2>
+    <p class="section-intro">
+      Every requirement is a structured record &mdash; not a line in a spreadsheet. Capture where it came
+      from, who owns it, how confident you are, and what evidence backs it up, then move it through a
+      governed approval workflow.
+    </p>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="icon">＃</div>
+        <h3>Auto-numbered requirements</h3>
+        <p>Every requirement gets a sequential ID (REQ-001, REQ-002, ...) with rich metadata: title, description, priority, confidence level, and impact.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🔍</div>
+        <h3>Source tracking</h3>
+        <p>Record exactly how each requirement was discovered &mdash; SME interview, legacy code analysis, production observation, incident investigation, and more.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">✅</div>
+        <h3>Approval workflow</h3>
+        <p>Requirements move through Draft → Under Review → Approved → In Progress → Completed, with invalid transitions rejected server-side.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">📎</div>
+        <h3>Evidence attachments</h3>
+        <p>Attach meeting notes, screenshots, log excerpts, and diagrams directly to a requirement. Files are validated and stored safely.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🔗</div>
+        <h3>Linked requirements</h3>
+        <p>Connect related requirements bidirectionally for impact analysis &mdash; see what else is affected before you change something.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🏷️</div>
+        <h3>Stakeholders, systems &amp; tags</h3>
+        <p>Maintain reusable directories of people and systems, and tag requirements by domain, risk, or modernization phase.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">📊</div>
+        <h3>Live dashboard</h3>
+        <p>See total requirements, status breakdowns, priority distribution, and recent activity at a glance.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🔎</div>
+        <h3>Search &amp; filter</h3>
+        <p>Full-text search across title, description, and ID, plus filtering by status, priority, source, system, and stakeholder.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>How it's built</h2>
+    <p class="section-intro">
+      A focused, self-hostable stack &mdash; no external services required to run it. SQLite means zero
+      database setup; the React frontend talks to the FastAPI backend over a simple REST API.
+    </p>
+    <div class="stack-row">
+      <span class="stack-pill"><b>Frontend</b> React 19 + TypeScript + Vite</span>
+      <span class="stack-pill"><b>Styling</b> Tailwind CSS v4</span>
+      <span class="stack-pill"><b>Server state</b> TanStack Query v5</span>
+      <span class="stack-pill"><b>Backend</b> FastAPI (async)</span>
+      <span class="stack-pill"><b>Database</b> SQLite + SQLAlchemy 2.0</span>
+      <span class="stack-pill"><b>Auth</b> JWT (python-jose + bcrypt)</span>
+    </div>
+    <div class="flow">
+      <div class="flow-node"><b>Browser</b><span>React SPA</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node"><b>FastAPI</b><span>REST API + JWT auth</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node"><b>SQLite</b><span>Requirements, users, evidence</span></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>Status workflow</h2>
+    <p class="section-intro">Transitions are enforced on the server &mdash; you can't skip steps.</p>
+    <div class="workflow">
+      <span class="wf-step draft">Draft</span>
+      <span class="wf-arrow">→</span>
+      <span class="wf-step review">Under Review</span>
+      <span class="wf-arrow">→</span>
+      <span class="wf-step approved">Approved</span>
+      <span class="wf-arrow">→</span>
+      <span class="wf-step progress">In Progress</span>
+      <span class="wf-arrow">→</span>
+      <span class="wf-step approved">Completed</span>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>v2: Authentication &amp; CSV Export</h2>
+    <p class="section-intro">
+      The latest release adds team accounts with role-based access, plus one-click reporting.
+    </p>
+    <div class="role-grid">
+      <div class="role-card">
+        <h3>Admin <span class="role-tag admin">first user</span></h3>
+        <ul>
+          <li>Full CRUD on all content</li>
+          <li>Manage user accounts</li>
+          <li>Promote, demote, or deactivate users</li>
+          <li>The first person to register is automatically Admin</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <h3>Analyst <span class="role-tag analyst">default role</span></h3>
+        <ul>
+          <li>Full CRUD on requirements, stakeholders, systems</li>
+          <li>Upload and manage evidence</li>
+          <li>Cannot manage other users</li>
+          <li>Self-registration &mdash; no invite required</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <h3>📥 CSV Export</h3>
+        <ul>
+          <li>Download the current requirements list as CSV</li>
+          <li>Respects active filters (status, priority, source, search)</li>
+          <li>All metadata columns included &mdash; ready for stakeholder reporting</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2>Where it's at, and where it's going</h2>
+    <div class="status-grid">
+      <div class="status-card done">
+        <h3>✅ Shipped</h3>
+        <ul>
+          <li>Requirements CRUD with auto-IDs &amp; full metadata</li>
+          <li>Status workflow with enforced transitions</li>
+          <li>Evidence file uploads &amp; downloads</li>
+          <li>Stakeholders, systems, and tags</li>
+          <li>Linked / related requirements</li>
+          <li>Dashboard with live stats</li>
+          <li>JWT authentication &amp; role-based access</li>
+          <li>Filtered CSV export</li>
+          <li>50 automated backend tests</li>
+        </ul>
+      </div>
+      <div class="status-card next">
+        <h3>🔜 Up next</h3>
+        <ul>
+          <li>Approval audit trail (who approved/rejected, when)</li>
+          <li>Excel &amp; Word export formats</li>
+          <li>PostgreSQL support for multi-instance deployments</li>
+        </ul>
+      </div>
+      <div class="status-card future">
+        <h3>🧭 On the roadmap</h3>
+        <ul>
+          <li>Assumptions &amp; unknowns registry</li>
+          <li>Legacy behavior catalog</li>
+          <li>Decision log with rationale &amp; alternatives</li>
+          <li>Dependency mapping between systems</li>
+          <li>Test case &amp; defect traceability</li>
+          <li>AI-assisted analysis (summarization, duplicate detection, risk flags)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>Requirements Discovery &amp; Traceability Platform &mdash; an internal tool for legacy modernization teams.</p>
+  </div>
+</footer>
+
+</body>
+</html>
