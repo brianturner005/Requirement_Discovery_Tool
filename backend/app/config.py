@@ -5,6 +5,7 @@ class Settings(BaseSettings):
     database_url: str = "sqlite+aiosqlite:///./data/requirements.db"
     upload_dir: str = "./uploads"
     max_upload_size_mb: int = 25
+    storage_backend: str = "local"  # "local" or "vercel_blob" — serverless hosts have no durable local disk
     cors_origins: list[str] = ["http://localhost:5173", "http://localhost:3000"]
     app_version: str = "0.2.0"
     app_title: str = "Requirements Discovery & Traceability Platform"
