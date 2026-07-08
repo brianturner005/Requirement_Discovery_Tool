@@ -17,6 +17,7 @@ from app.routers import (
     defects,
     evidence,
     legacy_behaviors,
+    requirement_comments,
     requirements,
     stakeholders,
     system_dependencies,
@@ -82,6 +83,7 @@ app.include_router(test_cases.router, prefix=API_PREFIX, dependencies=_authentic
 app.include_router(defects.router, prefix=API_PREFIX, dependencies=_authenticated)
 app.include_router(system_dependencies.router, prefix=API_PREFIX, dependencies=_authenticated)
 app.include_router(ai_analysis.router, prefix=API_PREFIX, dependencies=_authenticated)
+app.include_router(requirement_comments.router, prefix=API_PREFIX, dependencies=_authenticated)
 
 
 @app.get("/health")

@@ -1,5 +1,7 @@
 from app.models.associations import decision_requirements, decision_tags, requirement_relations, requirement_tags  # noqa: F401
 from app.models.audit_log import RequirementAuditLog  # noqa: F401
+from app.models.requirement_comment import RequirementComment  # noqa: F401
+from app.models.requirement_version import RequirementVersion  # noqa: F401
 from app.models.assumption import Assumption  # noqa: F401
 from app.models.decision import Decision  # noqa: F401
 from app.models.defect import Defect  # noqa: F401

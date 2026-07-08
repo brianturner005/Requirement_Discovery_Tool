@@ -405,6 +405,29 @@ export interface SystemDependencyCreatePayload {
 
 export type SystemDependencyUpdatePayload = Partial<SystemDependencyCreatePayload>;
 
+// ── Comments ──────────────────────────────────────────────────────────────────
+
+export interface RequirementComment {
+  id: number;
+  requirement_id: number;
+  author: UserSummary | null;
+  body: string;
+  is_edited: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+// ── Versions ──────────────────────────────────────────────────────────────────
+
+export interface RequirementVersion {
+  id: number;
+  requirement_id: number;
+  changed_by: UserSummary | null;
+  version_num: number;
+  snapshot: Record<string, unknown>;
+  changed_at: string;
+}
+
 // ── AI Analysis ───────────────────────────────────────────────────────────────
 
 export interface AIAnalysisResult {

@@ -16,7 +16,7 @@ import {
   FileSpreadsheet,
   FileText,
 } from 'lucide-react';
-import { useRequirements, useDeleteRequirement } from '../hooks/useRequirements';
+import { useRequirements, useDeleteRequirement, useBulkTransitionStatus } from '../hooks/useRequirements';
 import StatusBadge from '../components/requirements/StatusBadge';
 import PriorityBadge from '../components/requirements/PriorityBadge';
 import { formatRelativeTime } from '../lib/utils';
@@ -47,6 +47,9 @@ export default function RequirementsListPage() {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [importResult, setImportResult] = useState<{ created: string[]; errors: string[] } | null>(null);
   const importRef = useRef<HTMLInputElement>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkStatus, setBulkStatus] = useState('');
+  const [bulkError, setBulkError] = useState('');
 
   const filters: RequirementsFilters = {
     q: debouncedSearch || undefined,
@@ -61,6 +64,7 @@ export default function RequirementsListPage() {
 
   const { data, isLoading, isError } = useRequirements(filters);
   const deleteMutation = useDeleteRequirement();
+  const bulkMutation = useBulkTransitionStatus();
 
   const handleSearch = useCallback(
     (value: string) => {
@@ -106,14 +110,15 @@ export default function RequirementsListPage() {
     return params.toString();
   };
 
-  const handleExport = async (format: 'csv' | 'xlsx' | 'docx') => {
+  const handleExport = async (format: 'csv' | 'xlsx' | 'docx' | 'pdf') => {
     const qs = buildExportParams();
     const endpoints: Record<string, string> = {
       csv: `/requirements/export`,
       xlsx: `/requirements/export/xlsx`,
       docx: `/requirements/export/docx`,
+      pdf: `/requirements/export/pdf`,
     };
-    const exts: Record<string, string> = { csv: 'csv', xlsx: 'xlsx', docx: 'docx' };
+    const exts: Record<string, string> = { csv: 'csv', xlsx: 'xlsx', docx: 'docx', pdf: 'pdf' };
     const url = `${endpoints[format]}${qs ? `?${qs}` : ''}`;
     const { data } = await apiClient.get(url, { responseType: 'blob' });
     const blobUrl = URL.createObjectURL(data);
@@ -122,6 +127,34 @@ export default function RequirementsListPage() {
     a.download = `requirements-${new Date().toISOString().slice(0, 10)}.${exts[format]}`;
     a.click();
     URL.revokeObjectURL(blobUrl);
+  };
+
+  const toggleSelect = (reqId: string) => {
+    setSelected(prev => {
+      const next = new Set(prev);
+      if (next.has(reqId)) next.delete(reqId); else next.add(reqId);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selected.size === requirements.length) {
+      setSelected(new Set());
+    } else {
+      setSelected(new Set(requirements.map(r => r.req_id)));
+    }
+  };
+
+  const handleBulkStatus = async () => {
+    if (!bulkStatus || selected.size === 0) return;
+    setBulkError('');
+    try {
+      await bulkMutation.mutateAsync({ reqIds: Array.from(selected), status: bulkStatus });
+      setSelected(new Set());
+      setBulkStatus('');
+    } catch (err: unknown) {
+      setBulkError((err as any)?.response?.data?.detail ?? 'Some transitions failed');
+    }
   };
 
   const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -179,6 +212,14 @@ export default function RequirementsListPage() {
           >
             <FileText className="w-4 h-4" />
             Word
+          </button>
+          <button
+            onClick={() => handleExport('pdf')}
+            title="Export PDF"
+            className="inline-flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm"
+          >
+            <FileText className="w-4 h-4" />
+            PDF
           </button>
           <label
             title="Import CSV or Excel"
@@ -251,6 +292,34 @@ export default function RequirementsListPage() {
         </div>
       </div>
 
+      {/* Bulk action bar */}
+      {selected.size > 0 && (
+        <div className="flex items-center gap-3 px-4 py-3 bg-indigo-600/10 border border-indigo-500/30 rounded-xl">
+          <span className="text-sm text-indigo-300 font-medium">{selected.size} selected</span>
+          <div className="flex items-center gap-2 ml-auto">
+            {bulkError && <span className="text-xs text-red-400">{bulkError}</span>}
+            <select
+              value={bulkStatus}
+              onChange={e => setBulkStatus(e.target.value)}
+              className="px-3 py-1.5 text-sm border border-slate-600 rounded-lg bg-slate-800 text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="">Change status to…</option>
+              {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
+            <button
+              onClick={handleBulkStatus}
+              disabled={!bulkStatus || bulkMutation.isPending}
+              className="px-3 py-1.5 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 font-medium"
+            >
+              {bulkMutation.isPending ? 'Updating…' : 'Apply'}
+            </button>
+            <button onClick={() => setSelected(new Set())} className="px-3 py-1.5 text-sm text-slate-400 hover:text-slate-200">
+              Clear
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Table */}
       <div className="bg-slate-800 rounded-xl border border-slate-700 shadow-sm overflow-hidden">
         {isLoading ? (
@@ -274,6 +343,14 @@ export default function RequirementsListPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-slate-900 border-b border-slate-700">
+                  <th className="px-4 py-3 w-10">
+                    <input
+                      type="checkbox"
+                      checked={requirements.length > 0 && selected.size === requirements.length}
+                      onChange={toggleSelectAll}
+                      className="rounded border-slate-600 bg-slate-700 text-indigo-600 focus:ring-indigo-500"
+                    />
+                  </th>
                   {(
                     [
                       { field: 'req_id' as SortField, label: 'ID' },
@@ -309,7 +386,15 @@ export default function RequirementsListPage() {
               </thead>
               <tbody className="divide-y divide-slate-700">
                 {requirements.map((req) => (
-                  <tr key={req.id} className="hover:bg-slate-700 transition-colors group">
+                  <tr key={req.id} className={`hover:bg-slate-700 transition-colors group ${selected.has(req.req_id) ? 'bg-indigo-600/5' : ''}`}>
+                    <td className="px-4 py-3 w-10">
+                      <input
+                        type="checkbox"
+                        checked={selected.has(req.req_id)}
+                        onChange={() => toggleSelect(req.req_id)}
+                        className="rounded border-slate-600 bg-slate-700 text-indigo-600 focus:ring-indigo-500"
+                      />
+                    </td>
                     <td className="px-4 py-3">
                       <Link
                         to={`/requirements/${req.req_id}`}
