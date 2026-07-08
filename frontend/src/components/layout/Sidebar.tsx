@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, FileText, Users, Server, UserCog, LogOut, BookMarked, HelpCircle, Bug } from 'lucide-react';
+import { LayoutDashboard, FileText, Users, Server, UserCog, LogOut, BookMarked, HelpCircle, Bug, X } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useAuth } from '../../context/AuthContext';
 
@@ -21,21 +21,33 @@ const navItems: NavItem[] = [
   { to: '/users', label: 'Users', icon: UserCog, adminOnly: true },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  onClose?: () => void;
+}
+
+export default function Sidebar({ onClose }: SidebarProps) {
   const { user, isAdmin, logout } = useAuth();
 
   return (
-    <aside className="w-64 min-h-screen bg-slate-900 text-slate-100 flex flex-col shadow-xl">
+    <aside className="w-64 h-full min-h-screen bg-slate-900 text-slate-100 flex flex-col shadow-xl">
       {/* Logo / Brand */}
       <div className="px-6 py-5 border-b border-slate-700">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center">
             <FileText className="w-4 h-4 text-white" />
           </div>
-          <div>
+          <div className="flex-1 min-w-0">
             <p className="text-sm font-bold text-white leading-tight">Req Discovery</p>
             <p className="text-xs text-slate-400 leading-tight">Traceability Platform</p>
           </div>
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="lg:hidden p-1 text-slate-400 hover:text-white rounded transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
 
@@ -48,6 +60,7 @@ export default function Sidebar() {
               key={to}
               to={to}
               end={to === '/'}
+              onClick={onClose}
               className={({ isActive }) =>
                 cn(
                   'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-150',
