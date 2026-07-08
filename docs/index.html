@@ -352,10 +352,10 @@
       from idea to evidence to decision.
     </p>
     <div class="badge-row">
-      <span class="badge live"><span class="badge dot"></span> v2 &mdash; Auth &amp; CSV Export shipped</span>
+      <span class="badge live"><span class="badge dot"></span> v3 &mdash; Decision Log, Assumptions, Behaviors &amp; Audit Trail</span>
       <span class="badge">React + TypeScript</span>
-      <span class="badge">FastAPI + SQLite</span>
-      <span class="badge">Self-hosted</span>
+      <span class="badge">FastAPI + PostgreSQL</span>
+      <span class="badge">Vercel + Neon</span>
     </div>
   </div>
 </div>
@@ -447,23 +447,23 @@
   <div class="container">
     <h2>How it's built</h2>
     <p class="section-intro">
-      A focused, self-hostable stack &mdash; no external services required to run it. SQLite means zero
-      database setup; the React frontend talks to the FastAPI backend over a simple REST API.
+      Deployed on Vercel with a Neon PostgreSQL database &mdash; no servers to manage. SQLite still works for local development; the same ORM code runs on both.
     </p>
     <div class="stack-row">
       <span class="stack-pill"><b>Frontend</b> React 19 + TypeScript + Vite</span>
       <span class="stack-pill"><b>Styling</b> Tailwind CSS v4</span>
       <span class="stack-pill"><b>Server state</b> TanStack Query v5</span>
-      <span class="stack-pill"><b>Backend</b> FastAPI (async)</span>
-      <span class="stack-pill"><b>Database</b> SQLite + SQLAlchemy 2.0</span>
-      <span class="stack-pill"><b>Auth</b> JWT (python-jose + bcrypt)</span>
+      <span class="stack-pill"><b>Backend</b> FastAPI (async, serverless)</span>
+      <span class="stack-pill"><b>Database</b> PostgreSQL (Neon) + SQLAlchemy 2.0</span>
+      <span class="stack-pill"><b>Storage</b> Vercel Blob</span>
+      <span class="stack-pill"><b>Auth</b> JWT + stdlib PBKDF2</span>
     </div>
     <div class="flow">
-      <div class="flow-node"><b>Browser</b><span>React SPA</span></div>
+      <div class="flow-node"><b>Browser</b><span>React SPA (Vercel CDN)</span></div>
       <div class="flow-arrow">→</div>
-      <div class="flow-node"><b>FastAPI</b><span>REST API + JWT auth</span></div>
+      <div class="flow-node"><b>FastAPI</b><span>Vercel serverless fn</span></div>
       <div class="flow-arrow">→</div>
-      <div class="flow-node"><b>SQLite</b><span>Requirements, users, evidence</span></div>
+      <div class="flow-node"><b>PostgreSQL</b><span>Neon serverless DB</span></div>
     </div>
   </div>
 </section>
@@ -488,9 +488,9 @@
 
 <section>
   <div class="container">
-    <h2>v2: Authentication &amp; CSV Export</h2>
+    <h2>Team accounts &amp; reporting</h2>
     <p class="section-intro">
-      The latest release adds team accounts with role-based access, plus one-click reporting.
+      JWT-based team accounts with role-based access, plus one-click CSV export with active filter support.
     </p>
     <div class="role-grid">
       <div class="role-card">
@@ -538,26 +538,28 @@
           <li>Dashboard with live stats</li>
           <li>JWT authentication &amp; role-based access</li>
           <li>Filtered CSV export</li>
-          <li>50 automated backend tests</li>
+          <li>PostgreSQL + Vercel production deployment</li>
+          <li>Decision Log with rationale &amp; alternatives</li>
+          <li>Assumptions &amp; Unknowns Registry</li>
+          <li>Legacy Behavior Catalog</li>
+          <li>Approval audit trail (who changed what, when)</li>
         </ul>
       </div>
       <div class="status-card next">
         <h3>🔜 Up next</h3>
         <ul>
-          <li>Approval audit trail (who approved/rejected, when)</li>
           <li>Excel &amp; Word export formats</li>
-          <li>PostgreSQL support for multi-instance deployments</li>
+          <li>Dependency mapping between systems</li>
+          <li>Test case &amp; defect traceability</li>
         </ul>
       </div>
       <div class="status-card future">
         <h3>🧭 On the roadmap</h3>
         <ul>
-          <li>Assumptions &amp; unknowns registry</li>
-          <li>Legacy behavior catalog</li>
-          <li>Decision log with rationale &amp; alternatives</li>
-          <li>Dependency mapping between systems</li>
-          <li>Test case &amp; defect traceability</li>
           <li>AI-assisted analysis (summarization, duplicate detection, risk flags)</li>
+          <li>Mobile-optimized UI</li>
+          <li>Bulk import from CSV / Excel</li>
+          <li>Email notifications on status changes</li>
         </ul>
       </div>
     </div>
