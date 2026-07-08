@@ -89,6 +89,10 @@ export default function LoginPage() {
           <Link to="/register" className="text-indigo-400 hover:text-indigo-300 font-medium">
             Create one
           </Link>
+          {' · '}
+          <Link to="/reset-password" className="text-indigo-400 hover:text-indigo-300 font-medium">
+            Forgot password?
+          </Link>
         </p>
       </div>
     </div>

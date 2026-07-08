@@ -10,6 +10,7 @@ import RequirementFormPage from './pages/RequirementFormPage';
 import StakeholdersPage from './pages/StakeholdersPage';
 import SystemsPage from './pages/SystemsPage';
 import UsersPage from './pages/UsersPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import DecisionsListPage from './pages/DecisionsListPage';
 import DecisionDetailPage from './pages/DecisionDetailPage';
 import DecisionFormPage from './pages/DecisionFormPage';
@@ -32,6 +33,7 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route element={<ProtectedRoute />}>
           <Route element={<AppShell />}>
             <Route index element={<Navigate to="/dashboard" replace />} />
