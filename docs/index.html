@@ -352,7 +352,7 @@
       from idea to evidence to decision.
     </p>
     <div class="badge-row">
-      <span class="badge live"><span class="badge dot"></span> v4 &mdash; AI Analysis, Test Cases, Defects, System Dependencies &amp; Exports</span>
+      <span class="badge live"><span class="badge dot"></span> v5 &mdash; Jira &amp; Linear integrations, comments, versioning, PDF export</span>
       <span class="badge">React + TypeScript</span>
       <span class="badge">FastAPI + PostgreSQL</span>
       <span class="badge">Vercel + Neon</span>
@@ -474,6 +474,36 @@
         <h3>AI-Assisted Analysis</h3>
         <p>Run Claude AI on any requirement to get a plain-English summary, risk flags, improvement suggestions, and duplicate detection against existing requirements.</p>
       </div>
+      <div class="feature-card">
+        <div class="icon">💬</div>
+        <h3>Comments &amp; Discussion</h3>
+        <p>Threaded comments on every requirement. Authors can edit or delete their own comments; admins can moderate any thread.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🕰️</div>
+        <h3>Version History</h3>
+        <p>A full snapshot is saved on every edit. The detail page shows an expandable, field-level diff between versions &mdash; red for what was removed, green for what changed.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">📄</div>
+        <h3>PDF Export</h3>
+        <p>Generate a styled A4 PDF report from any filtered view alongside the existing CSV, Excel, and Word exports.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">☑️</div>
+        <h3>Bulk Status Transitions</h3>
+        <p>Select multiple requirements with checkboxes and change all their statuses in one action. Partial failures are reported individually without blocking successful transitions.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🔵</div>
+        <h3>Jira Integration</h3>
+        <p>Push any requirement to Jira as an issue with one click. Re-pushing updates the existing issue. Register the webhook URL to sync Jira status transitions back automatically.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🟣</div>
+        <h3>Linear Integration</h3>
+        <p>Push requirements to Linear via GraphQL. Select your team from a live list. Bidirectional status sync via webhook keeps both systems in agreement.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -494,7 +524,8 @@
       <span class="stack-pill"><b>Auth</b> JWT + stdlib PBKDF2</span>
       <span class="stack-pill"><b>AI</b> Anthropic Claude Haiku</span>
       <span class="stack-pill"><b>Email</b> Resend API</span>
-      <span class="stack-pill"><b>Exports</b> openpyxl + python-docx</span>
+      <span class="stack-pill"><b>Exports</b> openpyxl + python-docx + reportlab</span>
+      <span class="stack-pill"><b>Integrations</b> Jira REST API v3 + Linear GraphQL</span>
     </div>
     <div class="flow">
       <div class="flow-node"><b>Browser</b><span>React SPA (Vercel CDN)</span></div>
@@ -552,9 +583,10 @@
       <div class="role-card">
         <h3>📤 Export &amp; Import</h3>
         <ul>
-          <li>Export to CSV, Excel (.xlsx), or Word (.docx)</li>
+          <li>Export to CSV, Excel (.xlsx), Word (.docx), or PDF</li>
           <li>All exports respect active search &amp; filter state</li>
           <li>Bulk import from CSV or Excel with per-row error reporting</li>
+          <li>Bulk status transitions with checkbox multi-select</li>
           <li>Email notifications on status transitions (Resend)</li>
         </ul>
       </div>
@@ -590,17 +622,22 @@
           <li>System dependency mapping</li>
           <li>AI-assisted analysis via Claude (summary, risks, duplicates)</li>
           <li>Email notifications on status changes (Resend)</li>
+          <li>Comments &amp; discussion threads on requirements</li>
+          <li>Requirement versioning with field-level diffs</li>
+          <li>PDF report generation (filter-aware)</li>
+          <li>Bulk status transitions with checkbox multi-select</li>
+          <li>Jira integration (push, update, webhook status sync)</li>
+          <li>Linear integration (push, update, webhook status sync)</li>
         </ul>
       </div>
       <div class="status-card future">
         <h3>🧭 Possible next steps</h3>
         <ul>
-          <li>Comments &amp; discussion threads on requirements</li>
-          <li>Requirement versioning &amp; change history</li>
-          <li>PDF report generation</li>
-          <li>Bulk status transitions</li>
-          <li>Jira / Linear integration</li>
           <li>Advanced analytics &amp; burndown charts</li>
+          <li>Slack notifications on status changes</li>
+          <li>Requirement templates &amp; clone</li>
+          <li>Public read-only share links for stakeholders</li>
+          <li>Gantt / timeline view by milestone</li>
         </ul>
       </div>
     </div>
