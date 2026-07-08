@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, FileText, Users, Server, UserCog, LogOut, BookMarked, HelpCircle, Bug, X } from 'lucide-react';
+import { LayoutDashboard, FileText, Users, Server, UserCog, LogOut, BookMarked, HelpCircle, Bug, X, FlaskConical, Zap } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useAuth } from '../../context/AuthContext';
 
@@ -16,6 +16,8 @@ const navItems: NavItem[] = [
   { to: '/decisions', label: 'Decisions', icon: BookMarked },
   { to: '/assumptions', label: 'Assumptions', icon: HelpCircle },
   { to: '/legacy-behaviors', label: 'Legacy Behaviors', icon: Bug },
+  { to: '/test-cases', label: 'Test Cases', icon: FlaskConical },
+  { to: '/defects', label: 'Defects', icon: Zap },
   { to: '/stakeholders', label: 'Stakeholders', icon: Users },
   { to: '/systems', label: 'Systems', icon: Server },
   { to: '/users', label: 'Users', icon: UserCog, adminOnly: true },

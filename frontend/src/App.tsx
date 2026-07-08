@@ -20,6 +20,12 @@ import AssumptionFormPage from './pages/AssumptionFormPage';
 import LegacyBehaviorsListPage from './pages/LegacyBehaviorsListPage';
 import LegacyBehaviorDetailPage from './pages/LegacyBehaviorDetailPage';
 import LegacyBehaviorFormPage from './pages/LegacyBehaviorFormPage';
+import TestCasesListPage from './pages/TestCasesListPage';
+import TestCaseDetailPage from './pages/TestCaseDetailPage';
+import TestCaseFormPage from './pages/TestCaseFormPage';
+import DefectsListPage from './pages/DefectsListPage';
+import DefectDetailPage from './pages/DefectDetailPage';
+import DefectFormPage from './pages/DefectFormPage';
 
 function ProtectedRoute() {
   const { isAuthenticated } = useAuth();
@@ -54,6 +60,14 @@ export default function App() {
             <Route path="/legacy-behaviors/new" element={<LegacyBehaviorFormPage />} />
             <Route path="/legacy-behaviors/:id" element={<LegacyBehaviorDetailPage />} />
             <Route path="/legacy-behaviors/:id/edit" element={<LegacyBehaviorFormPage />} />
+            <Route path="/test-cases" element={<TestCasesListPage />} />
+            <Route path="/test-cases/new" element={<TestCaseFormPage />} />
+            <Route path="/test-cases/:id" element={<TestCaseDetailPage />} />
+            <Route path="/test-cases/:id/edit" element={<TestCaseFormPage />} />
+            <Route path="/defects" element={<DefectsListPage />} />
+            <Route path="/defects/new" element={<DefectFormPage />} />
+            <Route path="/defects/:id" element={<DefectDetailPage />} />
+            <Route path="/defects/:id/edit" element={<DefectFormPage />} />
             <Route path="/stakeholders" element={<StakeholdersPage />} />
             <Route path="/systems" element={<SystemsPage />} />
             <Route path="/users" element={<UsersPage />} />

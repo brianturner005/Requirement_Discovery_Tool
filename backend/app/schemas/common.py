@@ -90,6 +90,29 @@ class BehaviorStatusEnum(str, Enum):
     ACCEPTED_RISK = "Accepted Risk"
 
 
+class TestCaseStatusEnum(str, Enum):
+    DRAFT = "Draft"
+    READY = "Ready"
+    PASSED = "Passed"
+    FAILED = "Failed"
+    BLOCKED = "Blocked"
+
+
+class DefectStatusEnum(str, Enum):
+    OPEN = "Open"
+    IN_PROGRESS = "In Progress"
+    RESOLVED = "Resolved"
+    CLOSED = "Closed"
+    WONT_FIX = "Won't Fix"
+
+
+class DependencyTypeEnum(str, Enum):
+    DEPENDS_ON = "Depends On"
+    INTEGRATES_WITH = "Integrates With"
+    REPLACES = "Replaces"
+    FEEDS_INTO = "Feeds Into"
+
+
 class PaginatedResponse(BaseModel, Generic[T]):
     items: list[T]
     total: int

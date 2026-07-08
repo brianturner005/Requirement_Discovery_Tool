@@ -13,7 +13,10 @@ import {
   Link2,
   ChevronRight,
   Clock,
+  Sparkles,
 } from 'lucide-react';
+import { analyzeRequirement } from '../api/ai';
+import type { AIAnalysisResult } from '../types';
 import {
   useRequirement,
   useTransitionStatus,
@@ -73,6 +76,9 @@ export default function RequirementDetailPage() {
   const [addRelationInput, setAddRelationInput] = useState('');
   const [addRelationError, setAddRelationError] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [aiAnalysis, setAiAnalysis] = useState<AIAnalysisResult | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
 
   if (isLoading) {
     return (
@@ -150,6 +156,19 @@ export default function RequirementDetailPage() {
   const handleDeleteReq = async () => {
     await deleteReqMutation.mutateAsync(requirement.req_id);
     navigate('/requirements');
+  };
+
+  const handleAIAnalyze = async () => {
+    setAiLoading(true);
+    setAiError(null);
+    try {
+      const result = await analyzeRequirement(requirement.req_id);
+      setAiAnalysis(result);
+    } catch (err: unknown) {
+      setAiError((err as any)?.response?.data?.detail ?? 'AI analysis failed');
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   return (
@@ -473,6 +492,84 @@ export default function RequirementDetailPage() {
           </ol>
         </div>
       )}
+
+      {/* AI Analysis */}
+      <div className="bg-slate-800 rounded-xl border border-slate-700 shadow-sm p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-sm font-semibold text-slate-100 flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-indigo-400" />
+            AI Analysis
+          </h2>
+          <button
+            onClick={handleAIAnalyze}
+            disabled={aiLoading}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors disabled:opacity-50"
+          >
+            <Sparkles className="w-3 h-3" />
+            {aiLoading ? 'Analyzing…' : aiAnalysis ? 'Re-analyze' : 'Run Analysis'}
+          </button>
+        </div>
+        {aiError && <p className="text-sm text-red-400 mb-3">{aiError}</p>}
+        {aiLoading && (
+          <div className="flex items-center gap-3 text-slate-400 py-4">
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-indigo-500" />
+            <span className="text-sm">Analyzing with Claude AI…</span>
+          </div>
+        )}
+        {aiAnalysis && !aiLoading && (
+          <div className="space-y-5">
+            <div>
+              <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Summary</p>
+              <p className="text-sm text-slate-200 leading-relaxed">{aiAnalysis.summary}</p>
+            </div>
+            {aiAnalysis.risks.length > 0 && (
+              <div>
+                <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Risks</p>
+                <ul className="space-y-1.5">
+                  {aiAnalysis.risks.map((r, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-slate-200">
+                      <span className="mt-1 w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />
+                      {r}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {aiAnalysis.suggestions.length > 0 && (
+              <div>
+                <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Suggestions</p>
+                <ul className="space-y-1.5">
+                  {aiAnalysis.suggestions.map((s, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-slate-200">
+                      <span className="mt-1 w-1.5 h-1.5 rounded-full bg-green-400 flex-shrink-0" />
+                      {s}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {aiAnalysis.duplicate_candidates.length > 0 && (
+              <div>
+                <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Possible Duplicates</p>
+                <div className="flex flex-wrap gap-2">
+                  {aiAnalysis.duplicate_candidates.map(reqId => (
+                    <Link
+                      key={reqId}
+                      to={`/requirements/${reqId}`}
+                      className="font-mono text-xs text-indigo-400 hover:text-indigo-300 bg-indigo-500/10 px-2 py-1 rounded border border-indigo-500/20"
+                    >
+                      {reqId}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+        {!aiAnalysis && !aiLoading && !aiError && (
+          <p className="text-sm text-slate-500">Click "Run Analysis" to get AI insights on this requirement.</p>
+        )}
+      </div>
 
       {/* Delete Evidence Confirm */}
       {deleteEvidenceId !== null && (
