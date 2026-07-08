@@ -14,6 +14,7 @@ import {
   transitionStatus,
   addRelation,
   removeRelation,
+  bulkTransitionStatus,
 } from '../api/requirements';
 import apiClient from '../api/client';
 import type {
@@ -139,6 +140,17 @@ export function useRemoveRelation(): UseMutationResult<
       queryClient.invalidateQueries({
         queryKey: requirementKeys.detail(variables.reqId),
       });
+    },
+  });
+}
+
+export function useBulkTransitionStatus() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ reqIds, status }: { reqIds: string[]; status: string }) =>
+      bulkTransitionStatus(reqIds, status),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: requirementKeys.lists() });
     },
   });
 }

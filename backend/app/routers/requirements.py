@@ -2,9 +2,11 @@ import csv
 import io
 import math
 from datetime import date
+from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile
 from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_user
@@ -18,7 +20,14 @@ from app.schemas.requirement import (
     RequirementUpdate,
     StatusTransition,
 )
+from app.schemas.requirement_version import VersionResponse
 from app.services import requirement_service as svc
+from app.services import requirement_version_service as ver_svc
+
+
+class BulkStatusRequest(BaseModel):
+    req_ids: List[str]
+    status: str
 
 router = APIRouter(prefix="/requirements", tags=["requirements"])
 
@@ -337,6 +346,120 @@ async def import_requirements_csv(
     return {"created": created_ids, "errors": errors}
 
 
+@router.get("/export/pdf")
+async def export_requirements_pdf(
+    q: str | None = Query(None),
+    status: list[str] | None = Query(None),
+    priority: list[str] | None = Query(None),
+    source: list[str] | None = Query(None),
+    system_id: list[int] | None = Query(None),
+    stakeholder_id: list[int] | None = Query(None),
+    tag: list[str] | None = Query(None),
+    confidence: list[str] | None = Query(None),
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        from reportlab.lib import colors
+        from reportlab.lib.pagesizes import A4
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib.units import cm
+        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
+    except ImportError:
+        raise HTTPException(status_code=503, detail="reportlab not installed")
+
+    items, _ = await svc.list_requirements(
+        db, q=q, status=status, priority=priority, source=source,
+        system_id=system_id, stakeholder_id=stakeholder_id,
+        tag=tag, confidence=confidence, page=1, page_size=10_000,
+    )
+
+    buf = io.BytesIO()
+    doc = SimpleDocTemplate(buf, pagesize=A4, leftMargin=2*cm, rightMargin=2*cm, topMargin=2*cm, bottomMargin=2*cm)
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle("Title", parent=styles["Title"], fontSize=18, spaceAfter=6)
+    h1_style = ParagraphStyle("H1", parent=styles["Heading2"], fontSize=12, textColor=colors.HexColor("#1e3a5f"), spaceBefore=14, spaceAfter=4)
+    body_style = ParagraphStyle("Body", parent=styles["Normal"], fontSize=9, spaceAfter=4)
+    label_style = ParagraphStyle("Label", parent=styles["Normal"], fontSize=8, textColor=colors.HexColor("#64748b"), spaceBefore=2)
+
+    story = [
+        Paragraph("Requirements Report", title_style),
+        Paragraph(f"Generated: {date.today().isoformat()} &nbsp;·&nbsp; Total: {len(items)}", body_style),
+        Spacer(1, 0.4*cm),
+    ]
+
+    for r in items:
+        story.append(Paragraph(f"{r.req_id}: {r.title}", h1_style))
+        meta_data = [
+            ["Status", r.status, "Priority", r.priority],
+            ["Source", r.source, "Confidence", r.confidence],
+            ["Stakeholder", r.stakeholder.name if r.stakeholder else "—", "System", r.system.name if r.system else "—"],
+        ]
+        tbl = Table(meta_data, colWidths=[2.5*cm, 5*cm, 2.5*cm, 5*cm])
+        tbl.setStyle(TableStyle([
+            ("FONTSIZE", (0, 0), (-1, -1), 8),
+            ("TEXTCOLOR", (0, 0), (0, -1), colors.HexColor("#64748b")),
+            ("TEXTCOLOR", (2, 0), (2, -1), colors.HexColor("#64748b")),
+            ("FONTNAME", (0, 0), (0, -1), "Helvetica-Bold"),
+            ("FONTNAME", (2, 0), (2, -1), "Helvetica-Bold"),
+            ("ROWBACKGROUNDS", (0, 0), (-1, -1), [colors.HexColor("#f8fafc"), colors.white]),
+            ("GRID", (0, 0), (-1, -1), 0.3, colors.HexColor("#e2e8f0")),
+            ("TOPPADDING", (0, 0), (-1, -1), 3),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
+        ]))
+        story.append(tbl)
+        if r.description:
+            story.append(Paragraph("<b>Description:</b>", label_style))
+            story.append(Paragraph(r.description.replace("\n", "<br/>"), body_style))
+        if r.business_impact:
+            story.append(Paragraph(f"<b>Business Impact:</b> {r.business_impact}", body_style))
+        if r.technical_impact:
+            story.append(Paragraph(f"<b>Technical Impact:</b> {r.technical_impact}", body_style))
+        if r.tags:
+            story.append(Paragraph(f"<b>Tags:</b> {', '.join(t.name for t in r.tags)}", body_style))
+        story.append(HRFlowable(width="100%", thickness=0.5, color=colors.HexColor("#e2e8f0"), spaceAfter=6))
+
+    doc.build(story)
+    buf.seek(0)
+    filename = f"requirements-{date.today().isoformat()}.pdf"
+    return StreamingResponse(
+        buf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+@router.post("/bulk-status", response_model=list[RequirementResponse])
+async def bulk_transition_status(
+    data: BulkStatusRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    if not data.req_ids:
+        raise HTTPException(status_code=422, detail="No requirement IDs provided")
+    try:
+        new_status = StatusEnum(data.status)
+    except ValueError:
+        raise HTTPException(status_code=422, detail=f"Invalid status: {data.status}")
+
+    results = []
+    errors = []
+    for req_id in data.req_ids:
+        try:
+            req = await svc.transition_status(db, req_id, new_status, changed_by_id=current_user.id)
+            results.append(_to_response(req))
+        except HTTPException as e:
+            errors.append(f"{req_id}: {e.detail}")
+
+    if errors and not results:
+        raise HTTPException(status_code=422, detail="; ".join(errors))
+    return results
+
+
+@router.get("/{req_id}/versions", response_model=list[VersionResponse])
+async def list_versions(req_id: str, db: AsyncSession = Depends(get_db)):
+    return await ver_svc.list_versions(db, req_id)
+
+
 @router.post("", response_model=RequirementResponse, status_code=201)
 async def create_requirement(data: RequirementCreate, db: AsyncSession = Depends(get_db)):
     req = await svc.create_requirement(db, data)
@@ -350,8 +473,13 @@ async def get_requirement(req_id: str, db: AsyncSession = Depends(get_db)):
 
 
 @router.put("/{req_id}", response_model=RequirementResponse)
-async def update_requirement(req_id: str, data: RequirementUpdate, db: AsyncSession = Depends(get_db)):
-    req = await svc.update_requirement(db, req_id, data)
+async def update_requirement(
+    req_id: str,
+    data: RequirementUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    req = await svc.update_requirement(db, req_id, data, changed_by_id=current_user.id)
     return _to_response(req)
 
 

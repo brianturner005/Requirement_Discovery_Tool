@@ -14,6 +14,10 @@ import {
   ChevronRight,
   Clock,
   Sparkles,
+  MessageSquare,
+  History,
+  Send,
+  Pencil,
 } from 'lucide-react';
 import { analyzeRequirement } from '../api/ai';
 import type { AIAnalysisResult } from '../types';
@@ -25,6 +29,9 @@ import {
   useDeleteRequirement,
   useRequirementAuditLog,
 } from '../hooks/useRequirements';
+import { useComments, useCreateComment, useUpdateComment, useDeleteComment } from '../hooks/useComments';
+import { useVersions } from '../hooks/useVersions';
+import { useAuth } from '../context/AuthContext';
 import { uploadEvidence, deleteEvidence, getEvidenceDownloadUrl } from '../api/requirements';
 import { useQueryClient } from '@tanstack/react-query';
 import { requirementKeys } from '../hooks/useRequirements';
@@ -69,6 +76,13 @@ export default function RequirementDetailPage() {
   const addRelationMutation = useAddRelation();
   const deleteReqMutation = useDeleteRequirement();
 
+  const { user, isAdmin } = useAuth();
+  const { data: comments = [] } = useComments(reqId ?? '');
+  const { data: versions = [] } = useVersions(reqId ?? '');
+  const createComment = useCreateComment(reqId ?? '');
+  const updateComment = useUpdateComment(reqId ?? '');
+  const deleteComment = useDeleteComment(reqId ?? '');
+
   const [uploadingEvidence, setUploadingEvidence] = useState(false);
   const [evidenceError, setEvidenceError] = useState<string | null>(null);
   const [deleteEvidenceId, setDeleteEvidenceId] = useState<number | null>(null);
@@ -79,6 +93,10 @@ export default function RequirementDetailPage() {
   const [aiAnalysis, setAiAnalysis] = useState<AIAnalysisResult | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
+  const [newCommentBody, setNewCommentBody] = useState('');
+  const [editCommentId, setEditCommentId] = useState<number | null>(null);
+  const [editCommentBody, setEditCommentBody] = useState('');
+  const [expandedVersionId, setExpandedVersionId] = useState<number | null>(null);
 
   if (isLoading) {
     return (
@@ -490,6 +508,195 @@ export default function RequirementDetailPage() {
               </li>
             ))}
           </ol>
+        </div>
+      )}
+
+      {/* Comments */}
+      <div className="bg-slate-800 rounded-xl border border-slate-700 shadow-sm p-6">
+        <h2 className="text-sm font-semibold text-slate-100 flex items-center gap-2 mb-4">
+          <MessageSquare className="w-4 h-4 text-slate-400" />
+          Comments
+          <span className="text-xs font-normal text-slate-400">({comments.length})</span>
+        </h2>
+
+        {comments.length === 0 && (
+          <p className="text-sm text-slate-400 mb-4">No comments yet. Be the first to add one.</p>
+        )}
+
+        <div className="space-y-3 mb-4">
+          {comments.map((comment) => (
+            <div key={comment.id} className="p-4 bg-slate-900 rounded-lg border border-slate-700">
+              {editCommentId === comment.id ? (
+                <div className="space-y-2">
+                  <textarea
+                    value={editCommentBody}
+                    onChange={e => setEditCommentBody(e.target.value)}
+                    rows={3}
+                    className="w-full px-3 py-2 text-sm border border-slate-600 rounded-lg bg-slate-800 text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      onClick={async () => {
+                        if (!editCommentBody.trim()) return;
+                        await updateComment.mutateAsync({ id: comment.id, body: editCommentBody.trim() });
+                        setEditCommentId(null);
+                        setEditCommentBody('');
+                      }}
+                      disabled={updateComment.isPending}
+                      className="px-3 py-1.5 text-xs font-medium bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg disabled:opacity-50"
+                    >
+                      {updateComment.isPending ? 'Saving…' : 'Save'}
+                    </button>
+                    <button
+                      onClick={() => { setEditCommentId(null); setEditCommentBody(''); }}
+                      className="px-3 py-1.5 text-xs text-slate-400 hover:text-slate-200"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-slate-200">
+                        {comment.author?.full_name ?? 'Unknown'}
+                      </span>
+                      {comment.is_edited && (
+                        <span className="text-xs text-slate-500">(edited)</span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <span className="text-xs text-slate-500">
+                        {formatRelativeTime(comment.created_at)}
+                      </span>
+                      {(isAdmin || comment.author?.id === user?.id) && (
+                        <>
+                          <button
+                            onClick={() => { setEditCommentId(comment.id); setEditCommentBody(comment.body); }}
+                            className="p-1 text-slate-500 hover:text-indigo-400 transition-colors"
+                            title="Edit"
+                          >
+                            <Pencil className="w-3 h-3" />
+                          </button>
+                          <button
+                            onClick={() => deleteComment.mutate(comment.id)}
+                            className="p-1 text-slate-500 hover:text-red-400 transition-colors"
+                            title="Delete"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <p className="text-sm text-slate-200 whitespace-pre-wrap leading-relaxed">{comment.body}</p>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* New comment form */}
+        <div className="flex gap-2">
+          <textarea
+            value={newCommentBody}
+            onChange={e => setNewCommentBody(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                e.preventDefault();
+                if (newCommentBody.trim()) {
+                  createComment.mutate(newCommentBody.trim(), { onSuccess: () => setNewCommentBody('') });
+                }
+              }
+            }}
+            rows={2}
+            placeholder="Add a comment… (Ctrl+Enter to submit)"
+            className="flex-1 px-3 py-2 text-sm border border-slate-700 rounded-lg bg-slate-900 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+          />
+          <button
+            onClick={() => {
+              if (newCommentBody.trim()) {
+                createComment.mutate(newCommentBody.trim(), { onSuccess: () => setNewCommentBody('') });
+              }
+            }}
+            disabled={createComment.isPending || !newCommentBody.trim()}
+            className="self-end px-3 py-2 text-sm font-medium bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors disabled:opacity-50 inline-flex items-center gap-1.5"
+          >
+            <Send className="w-3.5 h-3.5" />
+            {createComment.isPending ? 'Posting…' : 'Post'}
+          </button>
+        </div>
+      </div>
+
+      {/* Version History */}
+      {versions.length > 0 && (
+        <div className="bg-slate-800 rounded-xl border border-slate-700 shadow-sm p-6">
+          <h2 className="text-sm font-semibold text-slate-100 flex items-center gap-2 mb-4">
+            <History className="w-4 h-4 text-slate-400" />
+            Version History
+            <span className="text-xs font-normal text-slate-400">({versions.length} versions)</span>
+          </h2>
+          <div className="space-y-2">
+            {versions.map((ver, idx) => {
+              const prevVer = versions[idx + 1];
+              const changedFields = prevVer
+                ? Object.keys(ver.snapshot).filter(
+                    k => JSON.stringify(ver.snapshot[k]) !== JSON.stringify(prevVer.snapshot[k])
+                  )
+                : Object.keys(ver.snapshot);
+              const isExpanded = expandedVersionId === ver.id;
+              return (
+                <div key={ver.id} className="border border-slate-700 rounded-lg overflow-hidden">
+                  <button
+                    className="w-full flex items-center justify-between p-3 text-left hover:bg-slate-700/50 transition-colors"
+                    onClick={() => setExpandedVersionId(isExpanded ? null : ver.id)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-mono bg-slate-700 text-slate-300 px-2 py-0.5 rounded">
+                        v{ver.version_num}
+                      </span>
+                      <span className="text-sm text-slate-300">
+                        {prevVer
+                          ? `Changed: ${changedFields.slice(0, 3).join(', ')}${changedFields.length > 3 ? ` +${changedFields.length - 3} more` : ''}`
+                          : 'Initial version'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3 flex-shrink-0 ml-2">
+                      <span className="text-xs text-slate-500">
+                        {ver.changed_by?.full_name ?? 'Unknown'}
+                      </span>
+                      <span className="text-xs text-slate-600">
+                        {new Date(ver.changed_at).toLocaleString()}
+                      </span>
+                      <ChevronRight className={`w-3.5 h-3.5 text-slate-500 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
+                    </div>
+                  </button>
+                  {isExpanded && (
+                    <div className="border-t border-slate-700 p-3 bg-slate-900">
+                      <div className="space-y-2">
+                        {changedFields.map(field => (
+                          <div key={field} className="grid grid-cols-[140px_1fr] gap-2 text-xs">
+                            <span className="font-medium text-slate-400 capitalize">{field.replace(/_/g, ' ')}</span>
+                            <div>
+                              {prevVer && (
+                                <div className="text-red-400 line-through mb-0.5 truncate">
+                                  {JSON.stringify(prevVer.snapshot[field]) ?? '—'}
+                                </div>
+                              )}
+                              <div className="text-green-400 truncate">
+                                {JSON.stringify(ver.snapshot[field]) ?? '—'}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
 

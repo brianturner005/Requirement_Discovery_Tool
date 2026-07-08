@@ -102,3 +102,8 @@ export async function fetchTags(): Promise<{ id: number; name: string }[]> {
   const response = await apiClient.get<{ id: number; name: string }[]>('/tags');
   return response.data;
 }
+
+export async function bulkTransitionStatus(reqIds: string[], status: string): Promise<Requirement[]> {
+  const { data } = await apiClient.post<Requirement[]>('/requirements/bulk-status', { req_ids: reqIds, status });
+  return data;
+}

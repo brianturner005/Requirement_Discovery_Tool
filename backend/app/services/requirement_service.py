@@ -174,8 +174,12 @@ async def list_requirements(
     return items, total
 
 
-async def update_requirement(db: AsyncSession, req_id: str, data: RequirementUpdate) -> Requirement:
+async def update_requirement(
+    db: AsyncSession, req_id: str, data: RequirementUpdate, changed_by_id: int | None = None
+) -> Requirement:
+    from app.services.requirement_version_service import save_version
     req = await get_requirement(db, req_id)
+    await save_version(db, req, changed_by_id)
     update_data = data.model_dump(exclude_unset=True)
 
     if "tag_names" in update_data:
