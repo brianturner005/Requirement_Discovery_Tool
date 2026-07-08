@@ -1,5 +1,3 @@
-import sys
-import traceback
 from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, Request
@@ -14,11 +12,7 @@ from app.routers import auth, dashboard, evidence, requirements, stakeholders, s
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    try:
-        await create_tables()
-    except Exception:
-        print("STARTUP ERROR in create_tables:", traceback.format_exc(), file=sys.stderr)
-        raise
+    await create_tables()
     yield
 
 
@@ -75,7 +69,6 @@ async def not_found_handler(request: Request, exc):
     return JSONResponse(status_code=404, content={"detail": "Not found"})
 
 
-@app.exception_handler(Exception)
-async def unhandled_exception_handler(request: Request, exc: Exception):
-    print(f"UNHANDLED EXCEPTION {request.method} {request.url}:", traceback.format_exc(), file=sys.stderr)
+@app.exception_handler(500)
+async def server_error_handler(request: Request, exc):
     return JSONResponse(status_code=500, content={"detail": "Internal server error"})
