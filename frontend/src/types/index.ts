@@ -134,3 +134,168 @@ export interface SystemPayload {
   name: string;
   description?: string | null;
 }
+
+// ── Audit Log ────────────────────────────────────────────────────────────────
+
+export interface UserSummary {
+  id: number;
+  full_name: string;
+  email: string;
+}
+
+export interface AuditLogEntry {
+  id: number;
+  requirement_id: number;
+  changed_by: UserSummary | null;
+  from_status: string | null;
+  to_status: string;
+  changed_at: string;
+}
+
+// ── Decision Log ─────────────────────────────────────────────────────────────
+
+export interface StakeholderSummary {
+  id: number;
+  name: string;
+}
+
+export interface SystemSummary {
+  id: number;
+  name: string;
+}
+
+export interface RequirementSummary {
+  id: number;
+  req_id: string;
+  title: string;
+}
+
+export interface Decision {
+  id: number;
+  title: string;
+  description: string;
+  status: string;
+  decision_date: string | null;
+  rationale: string;
+  alternatives_considered: string | null;
+  outcome: string | null;
+  made_by: StakeholderSummary | null;
+  system: SystemSummary | null;
+  tags: TagRef[];
+  related_requirements: RequirementSummary[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DecisionCreatePayload {
+  title: string;
+  description: string;
+  rationale: string;
+  status?: string;
+  decision_date?: string | null;
+  alternatives_considered?: string | null;
+  outcome?: string | null;
+  made_by_id?: number | null;
+  system_id?: number | null;
+  tag_names?: string[];
+  related_requirement_ids?: number[];
+}
+
+export type DecisionUpdatePayload = Partial<DecisionCreatePayload>;
+
+export interface DecisionsFilters {
+  q?: string;
+  status?: string;
+  system_id?: number;
+  tag?: string;
+  sort_by?: string;
+  sort_dir?: 'asc' | 'desc';
+  page?: number;
+  page_size?: number;
+}
+
+// ── Assumptions & Unknowns ───────────────────────────────────────────────────
+
+export interface Assumption {
+  id: number;
+  title: string;
+  description: string;
+  category: string;
+  status: string;
+  priority: string;
+  owner: StakeholderSummary | null;
+  related_requirement: RequirementSummary | null;
+  resolution_notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AssumptionCreatePayload {
+  title: string;
+  description: string;
+  category: string;
+  status?: string;
+  priority?: string;
+  owner_id?: number | null;
+  related_requirement_id?: number | null;
+  resolution_notes?: string | null;
+}
+
+export type AssumptionUpdatePayload = Partial<AssumptionCreatePayload>;
+
+export interface AssumptionsFilters {
+  q?: string;
+  category?: string;
+  status?: string;
+  priority?: string;
+  owner_id?: number;
+  sort_by?: string;
+  sort_dir?: 'asc' | 'desc';
+  page?: number;
+  page_size?: number;
+}
+
+// ── Legacy Behavior Catalog ──────────────────────────────────────────────────
+
+export interface LegacyBehavior {
+  id: number;
+  title: string;
+  description: string;
+  behavior_type: string;
+  severity: string;
+  status: string;
+  system: SystemSummary | null;
+  related_requirement: RequirementSummary | null;
+  steps_to_reproduce: string | null;
+  expected_behavior: string | null;
+  actual_behavior: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface LegacyBehaviorCreatePayload {
+  title: string;
+  description: string;
+  behavior_type: string;
+  severity?: string;
+  status?: string;
+  system_id?: number | null;
+  related_requirement_id?: number | null;
+  steps_to_reproduce?: string | null;
+  expected_behavior?: string | null;
+  actual_behavior?: string | null;
+}
+
+export type LegacyBehaviorUpdatePayload = Partial<LegacyBehaviorCreatePayload>;
+
+export interface LegacyBehaviorsFilters {
+  q?: string;
+  behavior_type?: string;
+  status?: string;
+  severity?: string;
+  system_id?: number;
+  sort_by?: string;
+  sort_dir?: 'asc' | 'desc';
+  page?: number;
+  page_size?: number;
+}

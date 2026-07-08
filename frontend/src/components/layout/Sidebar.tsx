@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, FileText, Users, Server, UserCog, LogOut } from 'lucide-react';
+import { LayoutDashboard, FileText, Users, Server, UserCog, LogOut, BookMarked, HelpCircle, Bug } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useAuth } from '../../context/AuthContext';
 
@@ -13,6 +13,9 @@ interface NavItem {
 const navItems: NavItem[] = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/requirements', label: 'Requirements', icon: FileText },
+  { to: '/decisions', label: 'Decisions', icon: BookMarked },
+  { to: '/assumptions', label: 'Assumptions', icon: HelpCircle },
+  { to: '/legacy-behaviors', label: 'Legacy Behaviors', icon: Bug },
   { to: '/stakeholders', label: 'Stakeholders', icon: Users },
   { to: '/systems', label: 'Systems', icon: Server },
   { to: '/users', label: 'Users', icon: UserCog, adminOnly: true },

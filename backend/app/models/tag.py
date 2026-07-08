@@ -2,7 +2,7 @@ from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
-from app.models.associations import requirement_tags
+from app.models.associations import decision_tags, requirement_tags
 
 
 class Tag(Base):
@@ -13,4 +13,7 @@ class Tag(Base):
 
     requirements: Mapped[list["Requirement"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
         "Requirement", secondary=requirement_tags, back_populates="tags"
+    )
+    decisions: Mapped[list["Decision"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
+        "Decision", secondary=decision_tags, back_populates="tags"
     )

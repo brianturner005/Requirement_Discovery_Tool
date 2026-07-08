@@ -211,7 +211,14 @@ async def update_requirement(db: AsyncSession, req_id: str, data: RequirementUpd
     return await get_requirement(db, req_id)
 
 
-async def transition_status(db: AsyncSession, req_id: str, new_status: StatusEnum) -> Requirement:
+async def transition_status(
+    db: AsyncSession,
+    req_id: str,
+    new_status: StatusEnum,
+    changed_by_id: int | None = None,
+) -> Requirement:
+    from app.models.audit_log import RequirementAuditLog
+
     req = await get_requirement(db, req_id)
     current_status = StatusEnum(req.status)
     allowed = VALID_TRANSITIONS.get(current_status, [])
@@ -221,6 +228,12 @@ async def transition_status(db: AsyncSession, req_id: str, new_status: StatusEnu
             detail=f"Cannot transition from '{current_status.value}' to '{new_status.value}'. "
             f"Allowed: {[s.value for s in allowed]}",
         )
+    db.add(RequirementAuditLog(
+        requirement_id=req.id,
+        changed_by_id=changed_by_id,
+        from_status=current_status.value,
+        to_status=new_status.value,
+    ))
     req.status = new_status.value
     await db.flush()
     return await get_requirement(db, req_id)

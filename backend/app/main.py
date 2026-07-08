@@ -7,7 +7,20 @@ from fastapi.responses import JSONResponse
 from app.auth.dependencies import get_current_user
 from app.config import settings
 from app.database import create_tables
-from app.routers import auth, dashboard, evidence, requirements, stakeholders, systems, tags, users
+from app.routers import (
+    audit_logs,
+    assumptions,
+    auth,
+    dashboard,
+    decisions,
+    evidence,
+    legacy_behaviors,
+    requirements,
+    stakeholders,
+    systems,
+    tags,
+    users,
+)
 
 
 @asynccontextmanager
@@ -57,6 +70,10 @@ app.include_router(systems.router, prefix=API_PREFIX, dependencies=_authenticate
 app.include_router(tags.router, prefix=API_PREFIX, dependencies=_authenticated)
 app.include_router(evidence.router, prefix=API_PREFIX, dependencies=_authenticated)
 app.include_router(dashboard.router, prefix=API_PREFIX, dependencies=_authenticated)
+app.include_router(audit_logs.router, prefix=API_PREFIX, dependencies=_authenticated)
+app.include_router(decisions.router, prefix=API_PREFIX, dependencies=_authenticated)
+app.include_router(assumptions.router, prefix=API_PREFIX, dependencies=_authenticated)
+app.include_router(legacy_behaviors.router, prefix=API_PREFIX, dependencies=_authenticated)
 
 
 @app.get("/health")
