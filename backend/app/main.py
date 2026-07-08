@@ -8,17 +8,21 @@ from app.auth.dependencies import get_current_user
 from app.config import settings
 from app.database import create_tables
 from app.routers import (
+    ai_analysis,
     audit_logs,
     assumptions,
     auth,
     dashboard,
     decisions,
+    defects,
     evidence,
     legacy_behaviors,
     requirements,
     stakeholders,
+    system_dependencies,
     systems,
     tags,
+    test_cases,
     users,
 )
 
@@ -74,6 +78,10 @@ app.include_router(audit_logs.router, prefix=API_PREFIX, dependencies=_authentic
 app.include_router(decisions.router, prefix=API_PREFIX, dependencies=_authenticated)
 app.include_router(assumptions.router, prefix=API_PREFIX, dependencies=_authenticated)
 app.include_router(legacy_behaviors.router, prefix=API_PREFIX, dependencies=_authenticated)
+app.include_router(test_cases.router, prefix=API_PREFIX, dependencies=_authenticated)
+app.include_router(defects.router, prefix=API_PREFIX, dependencies=_authenticated)
+app.include_router(system_dependencies.router, prefix=API_PREFIX, dependencies=_authenticated)
+app.include_router(ai_analysis.router, prefix=API_PREFIX, dependencies=_authenticated)
 
 
 @app.get("/health")

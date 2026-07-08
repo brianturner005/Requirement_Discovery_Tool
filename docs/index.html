@@ -352,7 +352,7 @@
       from idea to evidence to decision.
     </p>
     <div class="badge-row">
-      <span class="badge live"><span class="badge dot"></span> v3 &mdash; Decision Log, Assumptions, Behaviors &amp; Audit Trail</span>
+      <span class="badge live"><span class="badge dot"></span> v4 &mdash; AI Analysis, Test Cases, Defects, System Dependencies &amp; Exports</span>
       <span class="badge">React + TypeScript</span>
       <span class="badge">FastAPI + PostgreSQL</span>
       <span class="badge">Vercel + Neon</span>
@@ -439,6 +439,41 @@
         <h3>Search &amp; filter</h3>
         <p>Full-text search across title, description, and ID, plus filtering by status, priority, source, system, and stakeholder.</p>
       </div>
+      <div class="feature-card">
+        <div class="icon">📓</div>
+        <h3>Decision Log</h3>
+        <p>Record architectural and design decisions with rationale, alternatives considered, and outcome. Link decisions back to requirements.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">❓</div>
+        <h3>Assumptions &amp; Unknowns</h3>
+        <p>Track things the team is assuming to be true, with category, priority, owner, and resolution notes. Surfaces risk before it becomes rework.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🐛</div>
+        <h3>Legacy Behavior Catalog</h3>
+        <p>Document quirky or undocumented legacy system behaviors — steps to reproduce, expected vs actual outcome — linked to requirements.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🧪</div>
+        <h3>Test Case Traceability</h3>
+        <p>Write test cases linked to requirements with preconditions, steps, expected result, and pass/fail status.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">⚡</div>
+        <h3>Defect Tracking</h3>
+        <p>Log defects with severity, status, steps to reproduce, and environment — linked to both requirements and systems for full traceability.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🗺️</div>
+        <h3>System Dependency Mapping</h3>
+        <p>Map relationships between systems (Depends On, Integrates With, Replaces, Feeds Into) to understand blast radius before making changes.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">✨</div>
+        <h3>AI-Assisted Analysis</h3>
+        <p>Run Claude AI on any requirement to get a plain-English summary, risk flags, improvement suggestions, and duplicate detection against existing requirements.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -457,6 +492,9 @@
       <span class="stack-pill"><b>Database</b> PostgreSQL (Neon) + SQLAlchemy 2.0</span>
       <span class="stack-pill"><b>Storage</b> Vercel Blob</span>
       <span class="stack-pill"><b>Auth</b> JWT + stdlib PBKDF2</span>
+      <span class="stack-pill"><b>AI</b> Anthropic Claude Haiku</span>
+      <span class="stack-pill"><b>Email</b> Resend API</span>
+      <span class="stack-pill"><b>Exports</b> openpyxl + python-docx</span>
     </div>
     <div class="flow">
       <div class="flow-node"><b>Browser</b><span>React SPA (Vercel CDN)</span></div>
@@ -490,7 +528,7 @@
   <div class="container">
     <h2>Team accounts &amp; reporting</h2>
     <p class="section-intro">
-      JWT-based team accounts with role-based access, plus one-click CSV export with active filter support.
+      JWT-based team accounts with role-based access, multi-format export, and bulk import from existing spreadsheets.
     </p>
     <div class="role-grid">
       <div class="role-card">
@@ -512,11 +550,12 @@
         </ul>
       </div>
       <div class="role-card">
-        <h3>📥 CSV Export</h3>
+        <h3>📤 Export &amp; Import</h3>
         <ul>
-          <li>Download the current requirements list as CSV</li>
-          <li>Respects active filters (status, priority, source, search)</li>
-          <li>All metadata columns included &mdash; ready for stakeholder reporting</li>
+          <li>Export to CSV, Excel (.xlsx), or Word (.docx)</li>
+          <li>All exports respect active search &amp; filter state</li>
+          <li>Bulk import from CSV or Excel with per-row error reporting</li>
+          <li>Email notifications on status transitions (Resend)</li>
         </ul>
       </div>
     </div>
@@ -537,30 +576,31 @@
           <li>Linked / related requirements</li>
           <li>Dashboard with live stats</li>
           <li>JWT authentication &amp; role-based access</li>
-          <li>Filtered CSV export</li>
+          <li>CSV, Excel &amp; Word export (filter-aware)</li>
+          <li>Bulk import from CSV or Excel</li>
           <li>PostgreSQL + Vercel production deployment</li>
           <li>Decision Log with rationale &amp; alternatives</li>
           <li>Assumptions &amp; Unknowns Registry</li>
           <li>Legacy Behavior Catalog</li>
           <li>Approval audit trail (who changed what, when)</li>
           <li>Mobile-responsive UI with slide-in nav drawer</li>
-          <li>Password reset flow (no email required)</li>
-        </ul>
-      </div>
-      <div class="status-card next">
-        <h3>🔜 Up next</h3>
-        <ul>
-          <li>Excel &amp; Word export formats</li>
-          <li>Dependency mapping between systems</li>
-          <li>Test case &amp; defect traceability</li>
+          <li>Password reset flow</li>
+          <li>Test Case traceability</li>
+          <li>Defect tracking linked to requirements &amp; systems</li>
+          <li>System dependency mapping</li>
+          <li>AI-assisted analysis via Claude (summary, risks, duplicates)</li>
+          <li>Email notifications on status changes (Resend)</li>
         </ul>
       </div>
       <div class="status-card future">
-        <h3>🧭 On the roadmap</h3>
+        <h3>🧭 Possible next steps</h3>
         <ul>
-          <li>AI-assisted analysis (summarization, duplicate detection, risk flags)</li>
-          <li>Bulk import from CSV / Excel</li>
-          <li>Email notifications on status changes</li>
+          <li>Comments &amp; discussion threads on requirements</li>
+          <li>Requirement versioning &amp; change history</li>
+          <li>PDF report generation</li>
+          <li>Bulk status transitions</li>
+          <li>Jira / Linear integration</li>
+          <li>Advanced analytics &amp; burndown charts</li>
         </ul>
       </div>
     </div>

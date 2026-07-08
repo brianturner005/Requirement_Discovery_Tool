@@ -12,6 +12,10 @@ class Settings(BaseSettings):
     secret_key: str = "change-me-in-production-use-a-long-random-string"
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 480
+    anthropic_api_key: str = ""
+    resend_api_key: str = ""
+    from_email: str = "noreply@example.com"
+    notification_emails: str = ""  # comma-separated list of addresses to notify on status changes
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 

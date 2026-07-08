@@ -236,7 +236,10 @@ async def transition_status(
     ))
     req.status = new_status.value
     await db.flush()
-    return await get_requirement(db, req_id)
+    updated = await get_requirement(db, req_id)
+    from app.utils.email import send_status_notification
+    await send_status_notification(req_id=req_id, title=req.title, from_status=current_status.value, to_status=new_status.value)
+    return updated
 
 
 async def delete_requirement(db: AsyncSession, req_id: str) -> None:

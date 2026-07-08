@@ -3,7 +3,7 @@ import io
 import math
 from datetime import date
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -142,6 +142,199 @@ async def export_requirements(
         media_type="text/csv",
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
+
+
+@router.get("/export/xlsx")
+async def export_requirements_xlsx(
+    q: str | None = Query(None),
+    status: list[str] | None = Query(None),
+    priority: list[str] | None = Query(None),
+    source: list[str] | None = Query(None),
+    system_id: list[int] | None = Query(None),
+    stakeholder_id: list[int] | None = Query(None),
+    tag: list[str] | None = Query(None),
+    confidence: list[str] | None = Query(None),
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        import openpyxl
+        from openpyxl.styles import Font, PatternFill
+    except ImportError:
+        raise HTTPException(status_code=503, detail="openpyxl not installed")
+
+    items, _ = await svc.list_requirements(
+        db, q=q, status=status, priority=priority, source=source,
+        system_id=system_id, stakeholder_id=stakeholder_id,
+        tag=tag, confidence=confidence, page=1, page_size=10_000,
+    )
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Requirements"
+
+    headers = ["ID", "Title", "Status", "Priority", "Source", "Confidence",
+               "Stakeholder", "System", "Tags", "Business Impact",
+               "Technical Impact", "Notes", "Created", "Updated"]
+    ws.append(headers)
+
+    header_fill = PatternFill(start_color="1E3A5F", end_color="1E3A5F", fill_type="solid")
+    header_font = Font(color="FFFFFF", bold=True)
+    for cell in ws[1]:
+        cell.fill = header_fill
+        cell.font = header_font
+
+    for r in items:
+        ws.append([
+            r.req_id, r.title, r.status, r.priority, r.source, r.confidence,
+            r.stakeholder.name if r.stakeholder else "",
+            r.system.name if r.system else "",
+            ", ".join(t.name for t in r.tags),
+            r.business_impact or "", r.technical_impact or "", r.notes or "",
+            r.created_at.strftime("%Y-%m-%d"), r.updated_at.strftime("%Y-%m-%d"),
+        ])
+
+    for col in ws.columns:
+        max_len = max(len(str(cell.value or "")) for cell in col)
+        ws.column_dimensions[col[0].column_letter].width = min(max_len + 2, 60)
+
+    buf = io.BytesIO()
+    wb.save(buf)
+    buf.seek(0)
+    filename = f"requirements-{date.today().isoformat()}.xlsx"
+    return StreamingResponse(
+        buf,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+@router.get("/export/docx")
+async def export_requirements_docx(
+    q: str | None = Query(None),
+    status: list[str] | None = Query(None),
+    priority: list[str] | None = Query(None),
+    source: list[str] | None = Query(None),
+    system_id: list[int] | None = Query(None),
+    stakeholder_id: list[int] | None = Query(None),
+    tag: list[str] | None = Query(None),
+    confidence: list[str] | None = Query(None),
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        from docx import Document
+        from docx.shared import Pt, RGBColor
+    except ImportError:
+        raise HTTPException(status_code=503, detail="python-docx not installed")
+
+    items, _ = await svc.list_requirements(
+        db, q=q, status=status, priority=priority, source=source,
+        system_id=system_id, stakeholder_id=stakeholder_id,
+        tag=tag, confidence=confidence, page=1, page_size=10_000,
+    )
+
+    doc = Document()
+    doc.add_heading("Requirements Report", 0)
+    doc.add_paragraph(f"Generated: {date.today().isoformat()} | Total: {len(items)}")
+    doc.add_paragraph("")
+
+    for r in items:
+        h = doc.add_heading(f"{r.req_id}: {r.title}", level=1)
+        h.runs[0].font.color.rgb = RGBColor(0x1E, 0x3A, 0x5F)
+        table = doc.add_table(rows=1, cols=2)
+        table.style = "Table Grid"
+        fields = [
+            ("Status", r.status), ("Priority", r.priority), ("Source", r.source),
+            ("Confidence", r.confidence),
+            ("Stakeholder", r.stakeholder.name if r.stakeholder else "—"),
+            ("System", r.system.name if r.system else "—"),
+            ("Tags", ", ".join(t.name for t in r.tags) or "—"),
+        ]
+        hdr = table.rows[0].cells
+        hdr[0].text = "Field"
+        hdr[1].text = "Value"
+        for field, value in fields:
+            row = table.add_row().cells
+            row[0].text = field
+            row[1].text = str(value)
+        doc.add_paragraph("Description:")
+        doc.add_paragraph(r.description or "").runs[0].font.size = Pt(10) if r.description else None
+        if r.business_impact:
+            doc.add_paragraph(f"Business Impact: {r.business_impact}")
+        if r.technical_impact:
+            doc.add_paragraph(f"Technical Impact: {r.technical_impact}")
+        doc.add_paragraph("")
+
+    buf = io.BytesIO()
+    doc.save(buf)
+    buf.seek(0)
+    filename = f"requirements-{date.today().isoformat()}.docx"
+    return StreamingResponse(
+        buf,
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+@router.post("/import", status_code=200)
+async def import_requirements_csv(
+    file: UploadFile,
+    db: AsyncSession = Depends(get_db),
+):
+    if not file.filename or not file.filename.endswith((".csv", ".xlsx")):
+        raise HTTPException(status_code=422, detail="Only .csv and .xlsx files are supported")
+
+    content = await file.read()
+    created_ids = []
+    errors = []
+
+    try:
+        if file.filename.endswith(".xlsx"):
+            try:
+                import openpyxl
+            except ImportError:
+                raise HTTPException(status_code=503, detail="openpyxl not installed")
+            wb = openpyxl.load_workbook(io.BytesIO(content))
+            ws = wb.active
+            rows = list(ws.iter_rows(values_only=True))
+            if not rows:
+                return {"created": [], "errors": ["Empty file"]}
+            headers = [str(h).strip().lower() if h else "" for h in rows[0]]
+            data_rows = [dict(zip(headers, row)) for row in rows[1:]]
+        else:
+            text = content.decode("utf-8-sig")
+            reader = csv.DictReader(io.StringIO(text))
+            data_rows = [{k.strip().lower(): v for k, v in row.items()} for row in reader]
+    except Exception as e:
+        raise HTTPException(status_code=422, detail=f"Failed to parse file: {e}")
+
+    from app.schemas.common import ConfidenceEnum, PriorityEnum, SourceEnum
+    valid_priorities = {e.value.lower(): e.value for e in PriorityEnum}
+    valid_sources = {e.value.lower(): e.value for e in SourceEnum}
+    valid_confidences = {e.value.lower(): e.value for e in ConfidenceEnum}
+
+    for i, row in enumerate(data_rows, start=2):
+        title = (row.get("title") or "").strip()
+        if not title:
+            errors.append(f"Row {i}: missing title")
+            continue
+        try:
+            req_data = RequirementCreate(
+                title=title,
+                description=(row.get("description") or "").strip() or title,
+                source=valid_sources.get((row.get("source") or "").strip().lower(), "Stakeholder Interview"),
+                priority=valid_priorities.get((row.get("priority") or "").strip().lower(), "Medium"),
+                confidence=valid_confidences.get((row.get("confidence") or "").strip().lower(), "Medium"),
+                business_impact=(row.get("business impact") or row.get("business_impact") or "").strip() or None,
+                technical_impact=(row.get("technical impact") or row.get("technical_impact") or "").strip() or None,
+                notes=(row.get("notes") or "").strip() or None,
+                tag_names=[t.strip() for t in (row.get("tags") or "").split(",") if t.strip()],
+            )
+            req = await svc.create_requirement(db, req_data)
+            created_ids.append(req.req_id)
+        except Exception as e:
+            errors.append(f"Row {i}: {e}")
+
+    return {"created": created_ids, "errors": errors}
 
 
 @router.post("", response_model=RequirementResponse, status_code=201)

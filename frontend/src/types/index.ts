@@ -299,3 +299,123 @@ export interface LegacyBehaviorsFilters {
   page?: number;
   page_size?: number;
 }
+
+// ── Test Cases ────────────────────────────────────────────────────────────────
+
+export interface TestCase {
+  id: number;
+  title: string;
+  description: string | null;
+  preconditions: string | null;
+  steps: string | null;
+  expected_result: string | null;
+  status: string;
+  requirement_id: number | null;
+  requirement: RequirementSummary | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TestCaseCreatePayload {
+  title: string;
+  description?: string | null;
+  preconditions?: string | null;
+  steps?: string | null;
+  expected_result?: string | null;
+  status?: string;
+  requirement_id?: number | null;
+}
+
+export type TestCaseUpdatePayload = Partial<TestCaseCreatePayload>;
+
+export interface TestCasesFilters {
+  q?: string;
+  status?: string[];
+  requirement_id?: number;
+  sort_by?: string;
+  sort_dir?: 'asc' | 'desc';
+  page?: number;
+  page_size?: number;
+}
+
+// ── Defects ───────────────────────────────────────────────────────────────────
+
+export interface Defect {
+  id: number;
+  title: string;
+  description: string | null;
+  severity: string;
+  status: string;
+  requirement_id: number | null;
+  requirement: RequirementSummary | null;
+  system_id: number | null;
+  system: SystemSummary | null;
+  steps_to_reproduce: string | null;
+  environment: string | null;
+  resolution_notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DefectCreatePayload {
+  title: string;
+  description?: string | null;
+  severity?: string;
+  status?: string;
+  requirement_id?: number | null;
+  system_id?: number | null;
+  steps_to_reproduce?: string | null;
+  environment?: string | null;
+  resolution_notes?: string | null;
+}
+
+export type DefectUpdatePayload = Partial<DefectCreatePayload>;
+
+export interface DefectsFilters {
+  q?: string;
+  status?: string[];
+  severity?: string[];
+  requirement_id?: number;
+  system_id?: number[];
+  sort_by?: string;
+  sort_dir?: 'asc' | 'desc';
+  page?: number;
+  page_size?: number;
+}
+
+// ── System Dependency ─────────────────────────────────────────────────────────
+
+export interface SystemDependency {
+  id: number;
+  source_system_id: number;
+  target_system_id: number;
+  source_system: SystemRef;
+  target_system: SystemRef;
+  dependency_type: string;
+  notes: string | null;
+  created_at: string;
+}
+
+export interface SystemDependencyCreatePayload {
+  source_system_id: number;
+  target_system_id: number;
+  dependency_type: string;
+  notes?: string | null;
+}
+
+export type SystemDependencyUpdatePayload = Partial<SystemDependencyCreatePayload>;
+
+// ── AI Analysis ───────────────────────────────────────────────────────────────
+
+export interface AIAnalysisResult {
+  summary: string;
+  risks: string[];
+  suggestions: string[];
+  duplicate_candidates: string[];
+}
+
+export interface AIRiskFlag {
+  req_id: string;
+  risk_level: 'High' | 'Medium' | 'Low';
+  reason: string;
+}

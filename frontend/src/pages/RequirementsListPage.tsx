@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useRef, useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Plus,
@@ -12,6 +12,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Download,
+  Upload,
+  FileSpreadsheet,
+  FileText,
 } from 'lucide-react';
 import { useRequirements, useDeleteRequirement } from '../hooks/useRequirements';
 import StatusBadge from '../components/requirements/StatusBadge';
@@ -42,6 +45,8 @@ export default function RequirementsListPage() {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [page, setPage] = useState(1);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [importResult, setImportResult] = useState<{ created: string[]; errors: string[] } | null>(null);
+  const importRef = useRef<HTMLInputElement>(null);
 
   const filters: RequirementsFilters = {
     q: debouncedSearch || undefined,
@@ -92,22 +97,48 @@ export default function RequirementsListPage() {
     setDeleteConfirm(null);
   };
 
-  const handleExport = async () => {
+  const buildExportParams = () => {
     const params = new URLSearchParams();
     if (debouncedSearch) params.set('q', debouncedSearch);
     if (status) params.set('status', status);
     if (priority) params.set('priority', priority);
     if (source) params.set('source', source);
-    const qs = params.toString();
-    const { data } = await apiClient.get(`/requirements/export${qs ? `?${qs}` : ''}`, {
-      responseType: 'blob',
-    });
-    const url = URL.createObjectURL(data);
+    return params.toString();
+  };
+
+  const handleExport = async (format: 'csv' | 'xlsx' | 'docx') => {
+    const qs = buildExportParams();
+    const endpoints: Record<string, string> = {
+      csv: `/requirements/export`,
+      xlsx: `/requirements/export/xlsx`,
+      docx: `/requirements/export/docx`,
+    };
+    const exts: Record<string, string> = { csv: 'csv', xlsx: 'xlsx', docx: 'docx' };
+    const url = `${endpoints[format]}${qs ? `?${qs}` : ''}`;
+    const { data } = await apiClient.get(url, { responseType: 'blob' });
+    const blobUrl = URL.createObjectURL(data);
     const a = document.createElement('a');
-    a.href = url;
-    a.download = `requirements-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.href = blobUrl;
+    a.download = `requirements-${new Date().toISOString().slice(0, 10)}.${exts[format]}`;
     a.click();
-    URL.revokeObjectURL(url);
+    URL.revokeObjectURL(blobUrl);
+  };
+
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const { data } = await apiClient.post('/requirements/import', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      setImportResult(data);
+      if (importRef.current) importRef.current.value = '';
+    } catch (err: unknown) {
+      const detail = (err as any)?.response?.data?.detail ?? 'Import failed';
+      setImportResult({ created: [], errors: [detail] });
+    }
   };
 
   const requirements = data?.items ?? [];
@@ -124,14 +155,39 @@ export default function RequirementsListPage() {
             {total > 0 ? `${total} requirement${total !== 1 ? 's' : ''}` : 'No requirements yet'}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <button
-            onClick={handleExport}
-            className="inline-flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-slate-200 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm"
+            onClick={() => handleExport('csv')}
+            title="Export CSV"
+            className="inline-flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm"
           >
             <Download className="w-4 h-4" />
-            Export CSV
+            CSV
           </button>
+          <button
+            onClick={() => handleExport('xlsx')}
+            title="Export Excel"
+            className="inline-flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm"
+          >
+            <FileSpreadsheet className="w-4 h-4" />
+            Excel
+          </button>
+          <button
+            onClick={() => handleExport('docx')}
+            title="Export Word Document"
+            className="inline-flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm"
+          >
+            <FileText className="w-4 h-4" />
+            Word
+          </button>
+          <label
+            title="Import CSV or Excel"
+            className="inline-flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm cursor-pointer"
+          >
+            <Upload className="w-4 h-4" />
+            Import
+            <input ref={importRef} type="file" accept=".csv,.xlsx" className="sr-only" onChange={handleImport} />
+          </label>
           <Link
             to="/requirements/new"
             className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm"
@@ -349,6 +405,31 @@ export default function RequirementsListPage() {
           </div>
         )}
       </div>
+
+      {/* Import Result Modal */}
+      {importResult && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 rounded-xl shadow-xl p-6 max-w-md w-full">
+            <h3 className="font-semibold text-slate-50 mb-3">Import Complete</h3>
+            {importResult.created.length > 0 && (
+              <p className="text-sm text-green-400 mb-2">{importResult.created.length} requirement{importResult.created.length !== 1 ? 's' : ''} created: {importResult.created.join(', ')}</p>
+            )}
+            {importResult.errors.length > 0 && (
+              <div className="text-sm text-red-400 mb-2">
+                <p className="font-medium mb-1">{importResult.errors.length} error{importResult.errors.length !== 1 ? 's' : ''}:</p>
+                <ul className="list-disc list-inside space-y-1 max-h-40 overflow-y-auto">
+                  {importResult.errors.map((e, i) => <li key={i}>{e}</li>)}
+                </ul>
+              </div>
+            )}
+            <div className="flex justify-end mt-4">
+              <button onClick={() => setImportResult(null)} className="px-4 py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Delete Confirm Modal */}
       {deleteConfirm && (
