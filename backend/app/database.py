@@ -59,3 +59,17 @@ async def get_db():
 async def create_tables():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+
+
+async def run_migrations():
+    from sqlalchemy import text
+    stmts = [
+        "ALTER TABLE requirements ADD COLUMN IF NOT EXISTS jira_issue_key VARCHAR(50)",
+        "ALTER TABLE requirements ADD COLUMN IF NOT EXISTS linear_issue_id VARCHAR(100)",
+    ]
+    async with engine.begin() as conn:
+        for stmt in stmts:
+            try:
+                await conn.execute(text(stmt))
+            except Exception:
+                pass

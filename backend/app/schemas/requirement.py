@@ -118,6 +118,8 @@ class RequirementResponse(BaseModel):
     tags: list[TagResponse]
     related_requirements: list[RequirementSummary]
     evidence: list[EvidenceResponse]
+    jira_issue_key: str | None = None
+    linear_issue_id: str | None = None
     created_at: datetime
     updated_at: datetime
 

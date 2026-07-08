@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, FileText, Users, Server, UserCog, LogOut, BookMarked, HelpCircle, Bug, X, FlaskConical, Zap } from 'lucide-react';
+import { LayoutDashboard, FileText, Users, Server, UserCog, LogOut, BookMarked, HelpCircle, Bug, X, FlaskConical, Zap, Plug } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useAuth } from '../../context/AuthContext';
 
@@ -21,6 +21,7 @@ const navItems: NavItem[] = [
   { to: '/stakeholders', label: 'Stakeholders', icon: Users },
   { to: '/systems', label: 'Systems', icon: Server },
   { to: '/users', label: 'Users', icon: UserCog, adminOnly: true },
+  { to: '/integrations', label: 'Integrations', icon: Plug },
 ];
 
 interface SidebarProps {

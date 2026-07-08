@@ -27,6 +27,8 @@ class Requirement(Base):
     technical_impact: Mapped[str | None] = mapped_column(Text, nullable=True)
     status: Mapped[str] = mapped_column(String(30), nullable=False, default="Draft")
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    jira_issue_key: Mapped[str | None] = mapped_column(String(50), nullable=True, default=None)
+    linear_issue_id: Mapped[str | None] = mapped_column(String(100), nullable=True, default=None)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), server_default=func.now(), onupdate=func.now()

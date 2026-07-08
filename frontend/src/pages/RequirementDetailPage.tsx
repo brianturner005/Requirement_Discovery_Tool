@@ -32,6 +32,7 @@ import {
 import { useComments, useCreateComment, useUpdateComment, useDeleteComment } from '../hooks/useComments';
 import { useVersions } from '../hooks/useVersions';
 import { useAuth } from '../context/AuthContext';
+import { usePushToJira, usePushToLinear } from '../hooks/useIntegrations';
 import { uploadEvidence, deleteEvidence, getEvidenceDownloadUrl } from '../api/requirements';
 import { useQueryClient } from '@tanstack/react-query';
 import { requirementKeys } from '../hooks/useRequirements';
@@ -77,6 +78,9 @@ export default function RequirementDetailPage() {
   const deleteReqMutation = useDeleteRequirement();
 
   const { user, isAdmin } = useAuth();
+  const pushToJira = usePushToJira(reqId ?? '');
+  const pushToLinear = usePushToLinear(reqId ?? '');
+  const [pushError, setPushError] = useState<string | null>(null);
   const { data: comments = [] } = useComments(reqId ?? '');
   const { data: versions = [] } = useVersions(reqId ?? '');
   const createComment = useCreateComment(reqId ?? '');
@@ -201,7 +205,50 @@ export default function RequirementDetailPage() {
           <ChevronRight className="w-3 h-3" />
           <span className="font-mono font-medium text-slate-200">{requirement.req_id}</span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Jira push / link */}
+          {requirement.jira_issue_key ? (
+            <a
+              href={`https://atlassian.net/browse/${requirement.jira_issue_key}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-blue-400 bg-blue-500/10 border border-blue-500/20 rounded-lg hover:bg-blue-500/20 transition-colors"
+            >
+              Jira: {requirement.jira_issue_key}
+            </a>
+          ) : (
+            <button
+              onClick={async () => {
+                setPushError(null);
+                try { await pushToJira.mutateAsync(); }
+                catch (e: unknown) { setPushError((e as any)?.response?.data?.detail ?? 'Jira push failed'); }
+              }}
+              disabled={pushToJira.isPending}
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-slate-300 bg-slate-800 border border-slate-700 rounded-lg hover:bg-slate-700 transition-colors disabled:opacity-50"
+            >
+              {pushToJira.isPending ? 'Pushing…' : 'Push to Jira'}
+            </button>
+          )}
+
+          {/* Linear push / link */}
+          {requirement.linear_issue_id ? (
+            <span className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-purple-400 bg-purple-500/10 border border-purple-500/20 rounded-lg">
+              Linear linked
+            </span>
+          ) : (
+            <button
+              onClick={async () => {
+                setPushError(null);
+                try { await pushToLinear.mutateAsync(); }
+                catch (e: unknown) { setPushError((e as any)?.response?.data?.detail ?? 'Linear push failed'); }
+              }}
+              disabled={pushToLinear.isPending}
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-slate-300 bg-slate-800 border border-slate-700 rounded-lg hover:bg-slate-700 transition-colors disabled:opacity-50"
+            >
+              {pushToLinear.isPending ? 'Pushing…' : 'Push to Linear'}
+            </button>
+          )}
+
           <Link
             to={`/requirements/${requirement.req_id}/edit`}
             className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-slate-200 bg-slate-800 border border-slate-700 rounded-lg hover:bg-slate-700 transition-colors shadow-sm"
@@ -217,6 +264,7 @@ export default function RequirementDetailPage() {
             Delete
           </button>
         </div>
+        {pushError && <p className="w-full text-xs text-red-400 mt-1">{pushError}</p>}
       </div>
 
       {/* Title + Status */}
