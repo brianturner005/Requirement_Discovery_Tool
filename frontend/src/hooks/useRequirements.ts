@@ -15,12 +15,14 @@ import {
   addRelation,
   removeRelation,
 } from '../api/requirements';
+import apiClient from '../api/client';
 import type {
   Requirement,
   RequirementsFilters,
   RequirementCreatePayload,
   RequirementUpdatePayload,
   PaginatedResponse,
+  AuditLogEntry,
 } from '../types';
 
 export const requirementKeys = {
@@ -138,5 +140,16 @@ export function useRemoveRelation(): UseMutationResult<
         queryKey: requirementKeys.detail(variables.reqId),
       });
     },
+  });
+}
+
+export function useRequirementAuditLog(reqId: string): UseQueryResult<AuditLogEntry[]> {
+  return useQuery({
+    queryKey: [...requirementKeys.detail(reqId), 'audit-log'],
+    queryFn: async () => {
+      const { data } = await apiClient.get(`/requirements/${reqId}/audit-log`);
+      return data as AuditLogEntry[];
+    },
+    enabled: !!reqId,
   });
 }

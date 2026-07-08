@@ -12,6 +12,7 @@ import {
   FileText,
   Link2,
   ChevronRight,
+  Clock,
 } from 'lucide-react';
 import {
   useRequirement,
@@ -19,6 +20,7 @@ import {
   useRemoveRelation,
   useAddRelation,
   useDeleteRequirement,
+  useRequirementAuditLog,
 } from '../hooks/useRequirements';
 import { uploadEvidence, deleteEvidence, getEvidenceDownloadUrl } from '../api/requirements';
 import { useQueryClient } from '@tanstack/react-query';
@@ -58,6 +60,7 @@ export default function RequirementDetailPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: requirement, isLoading, isError } = useRequirement(reqId ?? '');
+  const { data: auditLog = [] } = useRequirementAuditLog(reqId ?? '');
   const transitionMutation = useTransitionStatus();
   const removeRelationMutation = useRemoveRelation();
   const addRelationMutation = useAddRelation();
@@ -436,6 +439,40 @@ export default function RequirementDetailPage() {
           </div>
         )}
       </div>
+
+      {/* Status History / Audit Trail */}
+      {auditLog.length > 0 && (
+        <div className="bg-slate-800 rounded-xl border border-slate-700 shadow-sm p-6">
+          <h2 className="text-sm font-semibold text-slate-100 flex items-center gap-2 mb-4">
+            <Clock className="w-4 h-4 text-slate-400" />
+            Status History
+          </h2>
+          <ol className="relative border-l border-slate-700 space-y-4 ml-2">
+            {auditLog.map((entry) => (
+              <li key={entry.id} className="ml-4">
+                <div className="absolute -left-1.5 w-3 h-3 rounded-full bg-indigo-500 border-2 border-slate-800" />
+                <div className="flex items-baseline gap-2 flex-wrap">
+                  {entry.from_status ? (
+                    <span className="text-sm text-slate-300">
+                      <span className="text-slate-500">{entry.from_status}</span>
+                      {' → '}
+                      <span className="font-medium text-indigo-400">{entry.to_status}</span>
+                    </span>
+                  ) : (
+                    <span className="text-sm font-medium text-indigo-400">Created as {entry.to_status}</span>
+                  )}
+                  {entry.changed_by && (
+                    <span className="text-xs text-slate-500">by {entry.changed_by.full_name}</span>
+                  )}
+                  <span className="text-xs text-slate-600 ml-auto">
+                    {new Date(entry.changed_at).toLocaleString()}
+                  </span>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
 
       {/* Delete Evidence Confirm */}
       {deleteEvidenceId !== null && (

@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from pydantic import BaseModel
+
 from app.auth.dependencies import get_current_user
 from app.auth.schemas import LoginRequest, RegisterRequest, TokenResponse, UserResponse
 from app.auth.utils import create_access_token, hash_password, verify_password
@@ -54,3 +56,19 @@ async def login(data: LoginRequest, db: AsyncSession = Depends(get_db)):
 @router.get("/me", response_model=UserResponse)
 async def me(current_user: User = Depends(get_current_user)):
     return current_user
+
+
+class ResetPasswordRequest(BaseModel):
+    email: str
+    new_password: str
+
+
+@router.post("/reset-password", status_code=200)
+async def reset_password(data: ResetPasswordRequest, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(User).where(User.email == data.email))
+    user = result.scalar_one_or_none()
+    if not user:
+        raise HTTPException(status_code=404, detail="No account found with that email")
+    user.hashed_password = hash_password(data.new_password)
+    await db.flush()
+    return {"detail": "Password updated"}

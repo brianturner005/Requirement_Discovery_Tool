@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile
-from fastapi.responses import FileResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -51,13 +50,7 @@ async def download_evidence(evidence_id: int, db: AsyncSession = Depends(get_db)
     if not evidence:
         raise HTTPException(status_code=404, detail="Evidence not found")
 
-    file_path = ev_svc.get_file_path(evidence.requirement_id, evidence.stored_filename)
-    return FileResponse(
-        path=str(file_path),
-        filename=evidence.filename,
-        media_type=evidence.content_type or "application/octet-stream",
-        headers={"Content-Disposition": f'attachment; filename="{evidence.filename}"'},
-    )
+    return await ev_svc.get_download_response(evidence.stored_filename, evidence.filename, evidence.content_type)
 
 
 @router.delete("/evidence/{evidence_id}", status_code=204)
@@ -66,5 +59,5 @@ async def delete_evidence(evidence_id: int, db: AsyncSession = Depends(get_db)):
     evidence = result.scalar_one_or_none()
     if not evidence:
         raise HTTPException(status_code=404, detail="Evidence not found")
-    await ev_svc.delete_file(evidence.requirement_id, evidence.stored_filename)
+    await ev_svc.delete_file(evidence.stored_filename)
     await db.delete(evidence)

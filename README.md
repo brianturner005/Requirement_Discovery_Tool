@@ -21,7 +21,7 @@ A centralized web application for legacy system modernization teams to **discove
 - [Troubleshooting](#troubleshooting)
 - [Roadmap](#roadmap)
 
-> **v2** adds JWT authentication with role-based access control and CSV export. See [Authentication](#authentication) for first-time setup.
+> **v3** adds Decision Log, Assumptions & Unknowns Registry, Legacy Behavior Catalog, and Approval Audit Trail on top of v2's JWT auth and CSV export. Deployed on Vercel + Neon PostgreSQL — no self-hosting required.
 
 ---
 
@@ -133,10 +133,12 @@ Live overview of the requirements registry:
 | Layer | Technology | Purpose |
 |---|---|---|
 | Backend API | FastAPI 0.111 | Async REST API framework |
-| Database | SQLite + SQLAlchemy 2.0 async | Zero-config relational database |
+| Database | SQLite (dev) / PostgreSQL (prod) + SQLAlchemy 2.0 async | Relational database; Neon PostgreSQL in production |
 | Migrations | Alembic | Schema version control |
+| Hosting | Vercel (frontend + API) + Neon (PostgreSQL) | Serverless deployment on free tier |
+| File Storage | Vercel Blob | Evidence file uploads in production |
 | Validation | Pydantic v2 | Request/response schemas |
-| Auth — JWT | python-jose + passlib[bcrypt] | Token signing and password hashing |
+| Auth — JWT | python-jose + stdlib PBKDF2 | Token signing and password hashing |
 | Frontend | React 19 + TypeScript | UI framework |
 | Build | Vite 8 | Frontend build tool |
 | Styling | Tailwind CSS v4 | Utility-first CSS |
@@ -568,7 +570,7 @@ Security was designed in from the start, not bolted on:
 | **Security Headers** | `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`, `X-XSS-Protection: 1; mode=block` |
 | **CORS** | Explicitly configured via `CORS_ORIGINS` env var — no wildcard `*` in production |
 | **No Hardcoded Secrets** | All configuration via environment variables, validated at startup by `pydantic-settings` |
-| **JWT Authentication** | `python-jose` (HS256) with 8-hour token expiry; `passlib[bcrypt]` for password hashing; all protected routes use `get_current_user` dependency at the router level |
+| **JWT Authentication** | `python-jose` (HS256) with 8-hour token expiry; `hashlib.pbkdf2_hmac` (SHA-256, 260k iterations — OWASP compliant) for password hashing via Python stdlib; all protected routes use `get_current_user` dependency at the router level |
 | **Role Enforcement** | Admin-only routes use a `require_admin` dependency that returns HTTP 403 for non-admin tokens |
 
 ---
@@ -596,7 +598,9 @@ ACCESS_TOKEN_EXPIRE_MINUTES=480
 | `UPLOAD_DIR` | `./uploads` | Directory for evidence file storage |
 | `MAX_UPLOAD_SIZE_MB` | `25` | Maximum allowed upload size in megabytes |
 | `CORS_ORIGINS` | `["http://localhost:5173"]` | JSON array of allowed frontend origins |
-| `APP_VERSION` | `0.2.0` | Returned by the `/health` endpoint |
+| `STORAGE_BACKEND` | `local` | `local` for dev (disk), `vercel_blob` for Vercel production |
+| `BLOB_READ_WRITE_TOKEN` | *(injected by Vercel)* | Auto-set when a Vercel Blob store is linked to the project |
+| `APP_VERSION` | `0.3.0` | Returned by the `/health` endpoint |
 | `SECRET_KEY` | *(change this)* | Secret used to sign JWTs — use a long random string in production |
 | `ALGORITHM` | `HS256` | JWT signing algorithm |
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | `480` | Token lifetime in minutes (default: 8 hours) |
@@ -677,17 +681,17 @@ Delete `backend/data/requirements.db` and restart the server. The database will 
 
 ## Roadmap
 
-The current MVP covers **Requirements Management**. Planned feature areas from the original design document:
-
-| Feature | Description |
+| Feature | Status |
 |---|---|
-| **Assumptions & Unknowns Registry** | Explicit tracking of unvalidated assumptions, open questions, and investigation tasks |
-| **Legacy Behavior Catalog** | Document undocumented system behaviors, edge cases, and manual workarounds |
-| **Decision Log** | Record architectural and modernization decisions with rationale, alternatives, and approval history |
-| **Dependency Mapping** | Map relationships between systems, APIs, databases, and business processes |
-| **Test Case Integration** | Link requirements to test cases and track validation status |
-| **Defect Traceability** | Link defects back to requirements for regression analysis |
-| **AI-Assisted Analysis** | Transcript summarization, duplicate detection, risk flagging, change impact suggestions |
-| **Excel / Word Export** | Expand export beyond CSV to Excel and formatted Word documents for stakeholder reporting |
-| **Approval Audit Trail** | Record who approved or rejected each status transition, and when |
-| **PostgreSQL Support** | Change `DATABASE_URL` to a PostgreSQL connection string — the ORM code requires no changes |
+| Requirements CRUD, workflow, evidence, stakeholders, systems, tags, dashboard | ✅ v1 |
+| JWT authentication, RBAC, CSV export | ✅ v2 |
+| PostgreSQL + Vercel production deployment, Vercel Blob storage | ✅ v3 |
+| **Decision Log** | ✅ v3 |
+| **Assumptions & Unknowns Registry** | ✅ v3 |
+| **Legacy Behavior Catalog** | ✅ v3 |
+| **Approval Audit Trail** | ✅ v3 |
+| **Dependency Mapping** | Planned — map relationships between systems, APIs, databases, and processes |
+| **Test Case Integration** | Planned — link requirements to test cases and track validation status |
+| **Defect Traceability** | Planned — link defects back to requirements for regression analysis |
+| **AI-Assisted Analysis** | Planned — summarization, duplicate detection, risk flagging, change impact |
+| **Excel / Word Export** | Planned — formatted exports for stakeholder reporting |

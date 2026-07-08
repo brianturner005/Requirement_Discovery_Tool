@@ -53,6 +53,43 @@ VALID_TRANSITIONS: dict[StatusEnum, list[StatusEnum]] = {
 }
 
 
+class DecisionStatusEnum(str, Enum):
+    PROPOSED = "Proposed"
+    ACCEPTED = "Accepted"
+    SUPERSEDED = "Superseded"
+    REJECTED = "Rejected"
+
+
+class AssumptionCategoryEnum(str, Enum):
+    ASSUMPTION = "Assumption"
+    OPEN_QUESTION = "Open Question"
+    INVESTIGATION_TASK = "Investigation Task"
+    RISK = "Risk"
+
+
+class AssumptionStatusEnum(str, Enum):
+    OPEN = "Open"
+    IN_PROGRESS = "In Progress"
+    VALIDATED = "Validated"
+    INVALIDATED = "Invalidated"
+    CLOSED = "Closed"
+
+
+class BehaviorTypeEnum(str, Enum):
+    EDGE_CASE = "Edge Case"
+    WORKAROUND = "Workaround"
+    UNDOCUMENTED_BEHAVIOR = "Undocumented Behavior"
+    KNOWN_BUG = "Known Bug"
+    MANUAL_PROCESS = "Manual Process"
+
+
+class BehaviorStatusEnum(str, Enum):
+    DOCUMENTED = "Documented"
+    INVESTIGATING = "Investigating"
+    ADDRESSED = "Addressed"
+    ACCEPTED_RISK = "Accepted Risk"
+
+
 class PaginatedResponse(BaseModel, Generic[T]):
     items: list[T]
     total: int

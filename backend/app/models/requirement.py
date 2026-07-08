@@ -59,3 +59,6 @@ class Requirement(Base):
     evidence: Mapped[list["Evidence"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
         "Evidence", back_populates="requirement", cascade="all, delete-orphan"
     )
+    audit_logs: Mapped[list["RequirementAuditLog"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
+        "RequirementAuditLog", back_populates="requirement", cascade="all, delete-orphan"
+    )
