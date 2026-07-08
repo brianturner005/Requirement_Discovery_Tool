@@ -26,6 +26,7 @@ import TestCaseFormPage from './pages/TestCaseFormPage';
 import DefectsListPage from './pages/DefectsListPage';
 import DefectDetailPage from './pages/DefectDetailPage';
 import DefectFormPage from './pages/DefectFormPage';
+import IntegrationsPage from './pages/IntegrationsPage';
 
 function ProtectedRoute() {
   const { isAuthenticated } = useAuth();
@@ -71,6 +72,7 @@ export default function App() {
             <Route path="/stakeholders" element={<StakeholdersPage />} />
             <Route path="/systems" element={<SystemsPage />} />
             <Route path="/users" element={<UsersPage />} />
+            <Route path="/integrations" element={<IntegrationsPage />} />
           </Route>
         </Route>
       </Routes>

@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 
 from app.auth.dependencies import get_current_user
 from app.config import settings
-from app.database import create_tables
+from app.database import create_tables, run_migrations
 from app.routers import (
     ai_analysis,
     audit_logs,
@@ -16,6 +16,7 @@ from app.routers import (
     decisions,
     defects,
     evidence,
+    integrations,
     legacy_behaviors,
     requirement_comments,
     requirements,
@@ -31,6 +32,7 @@ from app.routers import (
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await create_tables()
+    await run_migrations()
     yield
 
 
@@ -84,6 +86,9 @@ app.include_router(defects.router, prefix=API_PREFIX, dependencies=_authenticate
 app.include_router(system_dependencies.router, prefix=API_PREFIX, dependencies=_authenticated)
 app.include_router(ai_analysis.router, prefix=API_PREFIX, dependencies=_authenticated)
 app.include_router(requirement_comments.router, prefix=API_PREFIX, dependencies=_authenticated)
+# Integrations: authenticated config/test + unauthenticated webhooks
+app.include_router(integrations.router, prefix=API_PREFIX, dependencies=_authenticated)
+app.include_router(integrations.webhook_router, prefix=API_PREFIX)
 
 
 @app.get("/health")

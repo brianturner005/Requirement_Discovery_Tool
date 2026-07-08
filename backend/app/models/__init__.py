@@ -1,4 +1,5 @@
 from app.models.associations import decision_requirements, decision_tags, requirement_relations, requirement_tags  # noqa: F401
+from app.models.integration_config import IntegrationConfig  # noqa: F401
 from app.models.audit_log import RequirementAuditLog  # noqa: F401
 from app.models.requirement_comment import RequirementComment  # noqa: F401
 from app.models.requirement_version import RequirementVersion  # noqa: F401

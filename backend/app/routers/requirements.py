@@ -23,6 +23,7 @@ from app.schemas.requirement import (
 from app.schemas.requirement_version import VersionResponse
 from app.services import requirement_service as svc
 from app.services import requirement_version_service as ver_svc
+from app.services import jira_service, linear_service
 
 
 class BulkStatusRequest(BaseModel):
@@ -54,6 +55,8 @@ def _to_response(req) -> RequirementResponse:
             for r in related
         ],
         evidence=req.evidence,
+        jira_issue_key=req.jira_issue_key,
+        linear_issue_id=req.linear_issue_id,
         created_at=req.created_at,
         updated_at=req.updated_at,
     )
@@ -509,3 +512,21 @@ async def add_relation(req_id: str, target_req_id: str, db: AsyncSession = Depen
 async def remove_relation(req_id: str, target_req_id: str, db: AsyncSession = Depends(get_db)):
     req = await svc.remove_relation(db, req_id, target_req_id)
     return _to_response(req)
+
+
+@router.post("/{req_id}/jira")
+async def push_to_jira(req_id: str, db: AsyncSession = Depends(get_db)):
+    req = await svc.get_requirement(db, req_id)
+    try:
+        return await jira_service.push_requirement(db, req)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+@router.post("/{req_id}/linear")
+async def push_to_linear(req_id: str, db: AsyncSession = Depends(get_db)):
+    req = await svc.get_requirement(db, req_id)
+    try:
+        return await linear_service.push_requirement(db, req)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))

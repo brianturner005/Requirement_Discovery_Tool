@@ -48,8 +48,26 @@ export interface Requirement {
   tags: TagRef[];
   related_requirements: RelatedRequirement[];
   evidence: Evidence[];
+  jira_issue_key: string | null;
+  linear_issue_id: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface IntegrationStatus {
+  connected: boolean;
+  user?: string;
+  error?: string;
+}
+
+export interface IntegrationsStatusResponse {
+  jira: IntegrationStatus;
+  linear: IntegrationStatus;
+}
+
+export interface LinearTeam {
+  id: string;
+  name: string;
 }
 
 export interface Stakeholder {
