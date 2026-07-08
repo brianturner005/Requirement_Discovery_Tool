@@ -19,7 +19,8 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (axios.isAxiosError(error)) {
-      if (error.response?.status === 401) {
+      const isAuthEndpoint = error.config?.url?.startsWith('/auth/');
+      if (error.response?.status === 401 && !isAuthEndpoint) {
         localStorage.removeItem('auth_token');
         localStorage.removeItem('auth_user');
         window.location.href = '/login';
